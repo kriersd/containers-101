@@ -47,6 +47,7 @@ module.exports = (env, argv) => {
           include: [
             path.resolve(__dirname, 'node_modules/react-native-web'),
             path.resolve(__dirname, 'node_modules/@carbon'),
+            path.resolve(__dirname, 'node_modules/@carbon/icons-react'),
           ],
           use: {
             loader: 'babel-loader',
