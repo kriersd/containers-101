@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.example</groupId>
+  <artifactId>launch-next-chapter</artifactId>
+  <version>1.0.0</version>
+  <packaging>war</packaging>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- liberty-maven-plugin — check https://github.com/OpenLiberty/ci.maven/releases -->
+    <liberty.maven.plugin.version>3.10.3</liberty.maven.plugin.version>
+
+    <!-- MicroProfile / Jakarta EE APIs — compile-only, provided by Liberty runtime -->
+    <microprofile.version>6.1</microprofile.version>
+    <jakarta.ee.version>10.0.0</jakarta.ee.version>
+  </properties>
+
+  <dependencies>
+    <!-- MicroProfile 6.1 covers Health, Config, JWT, Metrics, OpenAPI, Rest Client -->
+    <dependency>
+      <groupId>org.eclipse.microprofile</groupId>
+      <artifactId>microprofile</artifactId>
+      <version>${microprofile.version}</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Jakarta EE 10 full platform — provided by Open Liberty runtime -->
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>${jakarta.ee.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <!-- verify latest: https://maven.apache.org/plugins/maven-war-plugin/ -->
+        <version>3.4.0</version>
+        <configuration>
+          <!-- No web.xml required for Jakarta EE 10 annotation-driven apps -->
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>io.openliberty.tools</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <version>${liberty.maven.plugin.version}</version>
+        <configuration>
+          <!--
+            Binds the Liberty server configuration from src/main/liberty/config/server.xml.
+            The plugin copies it into the server config directory during packaging.
+          -->
+          <serverName>defaultServer</serverName>
+          <packageType>jar</packageType>
+          <!--
+            include=runnable produces a self-contained executable JAR.
+            The Dockerfile uses the WAR artifact directly inside the base image
+            instead, so this is informational for local dev use.
+          -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>package-server</id>
+            <phase>package</phase>
+            <goals>
+              <!-- Creates the WAR and copies it into the Liberty server apps directory -->
+              <goal>create</goal>
+              <goal>install-feature</goal>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

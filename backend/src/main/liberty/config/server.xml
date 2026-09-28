@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="launch-next-chapter production server">
+
+  <!--
+    Explicit feature set — no wildcards.
+    Pinned to MicroProfile 6.1 / Jakarta EE 10 feature names.
+    Verify feature availability at:
+    https://openliberty.io/docs/latest/reference/feature/feature-overview.html
+  -->
+  <featureManager>
+    <!-- REST endpoint support via Jakarta RESTful Web Services -->
+    <feature>restfulWS-3.1</feature>
+    <!-- JSON binding for request/response serialisation -->
+    <feature>jsonb-3.0</feature>
+    <!-- JSON processing -->
+    <feature>jsonp-2.1</feature>
+    <!-- MicroProfile Health 4.0 — exposes /health, /health/live, /health/ready -->
+    <feature>mpHealth-4.0</feature>
+    <!-- MicroProfile Config 3.1 — reads env vars via @ConfigProperty -->
+    <feature>mpConfig-3.1</feature>
+    <!-- MicroProfile JWT 2.1 — Bearer token propagation -->
+    <feature>mpJwt-2.1</feature>
+    <!-- MicroProfile OpenAPI 3.1 — /openapi and /openapi/ui -->
+    <feature>mpOpenAPI-3.1</feature>
+    <!-- CDI 4.0 — dependency injection -->
+    <feature>cdi-4.0</feature>
+    <!-- Jakarta Servlet 6.0 — required for WAR deployment -->
+    <feature>servlet-6.0</feature>
+  </featureManager>
+
+  <!--
+    HTTP listener.
+    WLP_HTTP_PORT is set at container runtime via --env-file.
+    Default 9080 matches .env.example so the server starts without an env file during local dev.
+  -->
+  <httpEndpoint id="defaultHttpEndpoint"
+                host="*"
+                httpPort="${env.LIBERTY_HTTP_PORT:9080}"
+                httpsPort="${env.LIBERTY_HTTPS_PORT:9443}">
+    <tcpOptions soReuseAddr="true"/>
+  </httpEndpoint>
+
+  <!--
+    TLS keystore.
+    In production, mount a real keystore over /config/resources/security/key.p12
+    and set the password via LIBERTY_KEYSTORE_PASSWORD env var.
+    The defaultKeyStore element here enables the HTTPS listener; Liberty generates
+    a self-signed certificate if the file is absent (acceptable for internal/dev traffic).
+  -->
+  <keyStore id="defaultKeyStore"
+            location="${server.config.dir}/resources/security/key.p12"
+            type="PKCS12"
+            password="${env.LIBERTY_KEYSTORE_PASSWORD:changeit}"/>
+
+  <!--
+    Structured JSON logging to stdout.
+    Container log aggregators (Fluentd, Logstash, Cloud Logging) consume this directly.
+    consoleLogLevel=INFO suppresses DEBUG noise in production; change via LOG_LEVEL env var
+    if you need verbose output without rebuilding the image.
+  -->
+  <logging messageFormat="json"
+           consoleFormat="json"
+           consoleLogLevel="INFO"
+           traceSpecification="*=info"/>
+
+  <!--
+    MicroProfile Config source for reading environment variables as @ConfigProperty.
+    ordinal 500 gives env vars higher precedence than microprofile-config.properties.
+  -->
+  <mpConfig>
+    <configSources>
+      <configSource id="envSource"
+                    class="org.eclipse.microprofile.config.spi.ConfigSource"
+                    ordinal="500"/>
+    </configSources>
+  </mpConfig>
+
+  <!--
+    Application descriptor.
+    The WAR is copied to /config/apps/ by the Dockerfile final stage.
+    context-root "/" serves the app at the domain root.
+  -->
+  <webApplication id="launch-next-chapter"
+                  location="launch-next-chapter.war"
+                  context-root="/"/>
+
+</server>

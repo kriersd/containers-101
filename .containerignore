@@ -1,0 +1,37 @@
+# Secrets — must never be baked into the image
+.env
+.env.*
+!.env.example
+
+# Build artifacts — copied from Maven/Node stages, not the host filesystem
+target/
+**/target/
+node_modules/
+**/node_modules/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+
+# Documentation — exclude all markdown except README.md
+*.md
+!README.md
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# Test and CI config — not needed in the runtime image
+.github/
+*.test.js
+*.spec.js
+__tests__/
+coverage/
