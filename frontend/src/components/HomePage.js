@@ -18,6 +18,7 @@ const RESOURCES = [
   // ── Deep Dives ──────────────────────────────────────────────────────────────
   { group: 'Deep Dives', label: 'Understand Docker Volumes as a Pro', url: 'https://faun.pub/understand-docker-volumes-as-a-pro-86b85dd8b3e8?gi=d0fb7e16a1ad' },
   { group: 'Deep Dives', label: 'Shell Access to Docker Containers with docker exec', url: 'https://goteleport.com/blog/shell-access-docker-container-with-ssh-and-docker-exec/' },
+  { group: 'Deep Dives', label: 'History of Containers', url: 'https://www.aquasec.com/blog/a-brief-history-of-containers-from-1970s-chroot-to-docker-2016/' },
 ];
 
 const PARTS = [part1, part2, part3];

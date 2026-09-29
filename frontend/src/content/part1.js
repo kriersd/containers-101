@@ -70,7 +70,7 @@ docker stop my-web && docker rm my-web`,
       body: [
         'Container images are compiled for a specific CPU architecture. The two you will encounter most are <strong>amd64</strong> (also called x86_64 — Intel/AMD processors, most cloud VMs and data-centre servers) and <strong>arm64</strong> (also called aarch64 — Apple Silicon Macs, AWS Graviton instances, Raspberry Pi). An image built for amd64 will not run natively on arm64, and vice versa.',
         'This matters enormously in practice. If you build on an Apple M-series laptop and push to a Linux server running on Intel, the image will fail at runtime with a cryptic "exec format error". The solution is to always build images targeting the deployment architecture using the <code>--platform</code> flag, or to create multi-architecture manifest lists that bundle both variants.',
-        'The <strong>base image OS</strong> also matters. Your options range from a full OS like Ubuntu or Debian, to minimal variants like Alpine Linux (about 5 MB), to Red Hat Universal Base Image (UBI, fully supported for enterprise deployments), to Distroless or Scratch images that contain literally nothing except your application binary. The choice affects image size, available tooling, and your security attack surface.',
+        'The <strong>base image OS</strong> also matters. Your options range from a full OS like Ubuntu or Debian, to minimal variants like Alpine Linux (about 5 MB), to <a href="https://catalog.redhat.com/en/software/base-images#base-images-overview" target="_blank" rel="noopener noreferrer">Red Hat Universal Base Image (UBI)</a>, fully supported for enterprise deployments, to Distroless or Scratch images that contain literally nothing except your application binary. The choice affects image size, available tooling, and your security attack surface.',
         'A good rule of thumb: choose the smallest base that still ships the runtime your application needs. Alpine with <code>node:22-alpine</code> is a great choice for Node.js apps. UBI is the right choice when running on Red Hat OpenShift. Scratch is for statically compiled Go binaries that need no OS at all.',
       ],
       callouts: [
@@ -82,7 +82,7 @@ docker stop my-web && docker rm my-web`,
         {
           kind: 'info',
           title: 'Enterprise tip: ',
-          subtitle: 'Red Hat Universal Base Image (UBI) images are freely redistributable and receive CVE patches on the Red Hat errata cycle — a strong choice for enterprise and OpenShift deployments.',
+          subtitle: '<a href="https://catalog.redhat.com/en/software/base-images#base-images-overview" target="_blank" rel="noopener noreferrer">Red Hat Universal Base Image (UBI)</a> images are freely redistributable and receive CVE patches on the Red Hat errata cycle — a strong choice for enterprise and OpenShift deployments.',
         },
       ],
       codeBlocks: [
@@ -125,7 +125,7 @@ FROM scratch`,
         'Building on a Mac (arm64) and deploying to a Linux server (amd64) requires explicit <code>--platform linux/amd64</code>.',
         'Use <code>docker buildx</code> to create multi-arch images that run on both architectures.',
         'Smaller base images (Alpine, Distroless) = smaller attack surface and faster pulls.',
-        'UBI is the right base for Red Hat OpenShift and enterprise environments.',
+        '<a href="https://catalog.redhat.com/en/software/base-images#base-images-overview" target="_blank" rel="noopener noreferrer">UBI</a> is the right base for Red Hat OpenShift and enterprise environments.',
       ],
     },
 
