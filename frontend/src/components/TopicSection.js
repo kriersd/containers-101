@@ -8,22 +8,66 @@ import CopyCodeBlock from './CopyCodeBlock';
  *
  * Props:
  *   title       {string}              — Topic heading
- *   tag         {{ label, type }}     — Carbon Tag label and type (e.g. 'blue', 'red', 'green', 'teal', 'purple', 'warm-gray')
- *   body        {string[]}            — Array of paragraphs rendered as <p> elements
+ *   tag         {{ label, type }}     — Carbon Tag label and type
+ *   body        {string[]}            — Array of paragraphs (HTML strings)
+ *   images      {{ src, alt, caption, maxWidth, position }[]}
+ *                                     — Optional images. position: 'top' (before body) | 'middle' (after body, before callouts) | 'inline-N' (after Nth paragraph)
+ *                                       Defaults to 'top' if omitted.
  *   callouts    {{ kind, title, subtitle }[]}  — Carbon InlineNotification callout boxes
  *   codeBlocks  {{ language, code, caption }[]} — Code blocks with copy button
  *   keyPoints   {string[]}            — Bullet-point summary list
  *   id          {string}              — Anchor id for TOC deep-linking
  */
+
+function ImageBlock({ img }) {
+  return (
+    <Column sm={4} md={8} lg={12}>
+      <div style={{ margin: '1rem 0 1.5rem', textAlign: 'center' }}>
+        <img
+          src={img.src}
+          alt={img.alt || ''}
+          style={{
+            maxWidth: img.maxWidth || '600px',
+            width: '100%',
+            borderRadius: '4px',
+            border: '1px solid var(--cds-border-subtle)',
+            display: 'block',
+            margin: '0 auto',
+          }}
+        />
+        {img.caption && (
+          <p style={{ fontSize: '0.8125rem', color: 'var(--cds-text-secondary)', marginTop: '0.5rem', fontStyle: 'italic' }}>
+            {img.caption}
+          </p>
+        )}
+      </div>
+    </Column>
+  );
+}
+
 export default function TopicSection({
   title,
   tag,
   body = [],
+  images = [],
   callouts = [],
   codeBlocks = [],
   keyPoints = [],
+  // Legacy single-image props — still supported for backwards compatibility
+  image,
+  secondaryImage,
   id,
 }) {
+  // Normalise: merge legacy props into images array
+  const allImages = [
+    ...(image ? [{ position: 'top', ...image }] : []),
+    ...(secondaryImage ? [{ position: 'middle', ...secondaryImage }] : []),
+    ...images,
+  ];
+
+  const topImages    = allImages.filter((img) => !img.position || img.position === 'top');
+  const middleImages = allImages.filter((img) => img.position === 'middle');
+
   return (
     <section
       id={id}
@@ -56,6 +100,9 @@ export default function TopicSection({
           </div>
         </Column>
 
+        {/* Top images (before body text) */}
+        {topImages.map((img, i) => <ImageBlock key={`top-${i}`} img={img} />)}
+
         {/* Body paragraphs */}
         {body.length > 0 && (
           <Column sm={4} md={8} lg={12}>
@@ -73,6 +120,9 @@ export default function TopicSection({
             ))}
           </Column>
         )}
+
+        {/* Middle images (after body, before callouts) */}
+        {middleImages.map((img, i) => <ImageBlock key={`mid-${i}`} img={img} />)}
 
         {/* Callout notifications */}
         {callouts.length > 0 && (

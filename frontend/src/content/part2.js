@@ -3,10 +3,13 @@
  * 9 topics covering operational depth.
  */
 
+import execIntoContainerImg from '../images/Exec-into-container.png';
+import portMappingImg from '../images/port-mapping.png';
+
 export const part2 = {
   id: 2,
   title: 'Building & Running Containers',
-  description: 'Operational depth — environment variables, volumes, ports, restart policies, and image tagging.',
+  description: 'Operational depth — environment variables, volumes, ports, restart policies, image tagging, and debugging running containers.',
   topics: [
     // ─────────────────────────────────────────────────────────────────────────
     // Topic 1 — Container Run Options
@@ -294,6 +297,7 @@ docker volume prune                # remove all unused volumes`,
         '<strong>tmpfs</strong>: Memory-only, never written to disk, ideal for sensitive temporary data.',
         'Named volumes survive <code>docker rm</code> — they must be deleted explicitly.',
         'Non-root containers need matching UID ownership on the host directory.',
+        '<a href="https://www.geeksforgeeks.org/devops/what-is-docker-volume/" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">More info on docker volumes ↗</a>',
       ],
     },
 
@@ -383,6 +387,12 @@ echo "!.env.example" >> .dockerignore`,
       id: 'port-mapping',
       title: 'Port Mapping',
       tag: { label: 'Networking', type: 'blue' },
+      image: {
+        src: portMappingImg,
+        alt: 'Diagram showing host port 8080 forwarding to container port 80 via the -p 8080:80 Docker flag, with the container isolated inside a private Docker network.',
+        caption: 'The -p HOST_PORT:CONTAINER_PORT flag bridges traffic from your machine into the container\'s private network — without it, the port is completely unreachable.',
+        maxWidth: '660px',
+      },
       body: [
         'By default, a container is connected to a private Docker network and its ports are not accessible from the outside world — not even from your local machine running Docker. To make a container\'s port reachable, you must explicitly <strong>publish</strong> it using the <code>-p</code> (or <code>--publish</code>) flag.',
         'The syntax is <code>-p HOST_PORT:CONTAINER_PORT</code>. For example, <code>-p 8080:80</code> means: forward traffic arriving on port 8080 of your host machine to port 80 inside the container. The host port and container port do not need to match — and often should not, to avoid conflicts. The <code>EXPOSE</code> instruction in the Dockerfile is documentation only and does NOT automatically publish the port.',
@@ -656,6 +666,169 @@ docker inspect myapp:1.2.3 | grep '"Id"'`,
         'Tag with git SHA (<code>myapp:abc1234</code>) for full traceability in CI/CD.',
         'Workflow: <code>docker tag</code> → <code>docker login</code> → <code>docker push</code>.',
         'For maximum reproducibility, reference images by <strong>digest</strong> (<code>image@sha256:...</code>).',
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Topic 10 — Inspecting & Debugging Containers
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      id: 'inspect-and-debug',
+      title: 'Inspecting & Debugging Running Containers',
+      tag: { label: 'Operations', type: 'teal' },
+      body: [
+        'Once a container is running, Docker gives you a rich set of commands to look inside it, understand its configuration, and diagnose problems — all without stopping or modifying the container. These are the tools you will reach for every time something behaves unexpectedly.',
+        '<code>docker inspect</code> is the single most informative command in Docker\'s toolkit. It returns a complete JSON document describing every aspect of a container\'s configuration and runtime state: its image, environment variables, port mappings, volume mounts, network settings, restart policy, health check status, resource limits, and more. When a container is not behaving as expected, <code>docker inspect</code> is almost always the first command to run — it lets you verify that every flag and setting was actually applied the way you intended.',
+        '<code>docker logs</code> gives you access to everything the container has written to stdout and stderr since it started. Because containers are designed to log to stdout (not to files), this is the primary way to read application output. The <code>-f</code> flag streams logs in real time — like <code>tail -f</code> — which is invaluable when watching a service start up or tracking down an intermittent error.',
+        'For deeper investigation, <code>docker exec</code> runs a command inside a running container without restarting it. The most common use is opening an interactive shell (<code>docker exec -it mycontainer sh</code>) to explore the filesystem, check running processes, test network connectivity from inside the container\'s network namespace, or manually invoke a binary. Use this for diagnosis only — remember from Part 1 that you should never make persistent changes to a running container this way.',
+      ],
+      secondaryImage: {
+        src: execIntoContainerImg,
+        alt: 'Diagram illustrating docker exec opening an interactive shell session inside a running container.',
+        caption: 'docker exec -it mycontainer sh — drop directly into a running container\'s shell for live diagnosis without stopping or restarting it.',
+        maxWidth: '640px',
+      },
+      callouts: [
+        {
+          kind: 'info',
+          title: 'Inspect first: ',
+          subtitle: 'Before digging into logs or exec-ing into a container, run "docker inspect" first. Misconfigured env vars, wrong port mappings, and missing volume mounts are all instantly visible there.',
+        },
+        {
+          kind: 'warning',
+          title: 'exec is for diagnosis, not modification: ',
+          subtitle: 'Using "docker exec" to fix things in a running container violates immutability. Use it to understand what is wrong, then fix it in the Dockerfile and redeploy.',
+        },
+      ],
+      codeBlocks: [
+        {
+          language: 'bash',
+          code: `# ── docker inspect ────────────────────────────────────────────────────────
+
+# Full JSON dump of everything about a container
+docker inspect my-app
+
+# Filter to specific fields with --format (Go template syntax)
+docker inspect --format '{{.State.Status}}' my-app          # running / exited / paused
+docker inspect --format '{{.State.Health.Status}}' my-app   # healthy / unhealthy / starting
+docker inspect --format '{{.RestartCount}}' my-app          # how many times it has restarted
+
+# See all environment variables
+docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' my-app
+
+# See port mappings
+docker inspect --format '{{json .NetworkSettings.Ports}}' my-app | python3 -m json.tool
+
+# See volume mounts
+docker inspect --format '{{json .Mounts}}' my-app | python3 -m json.tool
+
+# See resource limits
+docker inspect --format 'Memory: {{.HostConfig.Memory}} CPU: {{.HostConfig.NanoCpus}}' my-app
+
+# Inspect an image (not a container) — shows layers, architecture, config
+docker inspect nginx:1.27-alpine`,
+          caption: 'docker inspect — the most complete view of a container\'s state and configuration.',
+        },
+        {
+          language: 'bash',
+          code: `# ── docker logs ───────────────────────────────────────────────────────────
+
+# Print all logs since the container started
+docker logs my-app
+
+# Follow (stream) logs in real time — like tail -f
+docker logs -f my-app
+
+# Show only the last N lines
+docker logs --tail 50 my-app
+
+# Follow the last 50 lines (most common combo for live debugging)
+docker logs -f --tail 50 my-app
+
+# Add timestamps to each log line
+docker logs -t my-app
+
+# Show logs since a specific time
+docker logs --since 2024-01-15T10:00:00 my-app
+
+# Show logs from the last 10 minutes
+docker logs --since 10m my-app
+
+# Show only stderr
+docker logs my-app 2>&1 1>/dev/null
+
+# Podman equivalent — identical syntax
+podman logs -f --tail 50 my-app`,
+          caption: 'docker logs — reading and streaming container output.',
+        },
+        {
+          language: 'bash',
+          code: `# ── docker exec — running commands inside a container ────────────────────
+
+# Open an interactive shell (use sh if bash is not available, e.g. Alpine images)
+docker exec -it my-app sh
+docker exec -it my-app bash
+
+# Run a one-off command without opening a shell
+docker exec my-app ps aux                    # see running processes
+docker exec my-app env | sort                # see all environment variables
+docker exec my-app ls -la /app               # explore filesystem
+docker exec my-app cat /etc/hosts            # check container's /etc/hosts
+docker exec my-app df -h                     # check disk usage inside container
+
+# Test network connectivity from inside the container's network namespace
+docker exec my-app wget -qO- http://db:5432  # can it reach the database?
+docker exec my-app nslookup db               # DNS resolution from inside the container
+docker exec my-app curl -s http://localhost:3000/health   # test internal endpoints
+
+# ── docker stats — live resource usage ────────────────────────────────────
+# Real-time CPU, memory, network I/O, and disk I/O per container
+docker stats
+
+# Single snapshot (no streaming)
+docker stats --no-stream
+
+# Stats for a specific container
+docker stats --no-stream my-app
+
+# ── docker top — processes inside a container ──────────────────────────────
+docker top my-app`,
+          caption: 'docker exec and docker stats — deep inspection of running containers.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Common debugging workflow ─────────────────────────────────────────────
+
+# 1. Container not starting? Check what happened:
+docker ps -a                                 # is it in "Exited" state?
+docker inspect my-app | grep -A 3 '"ExitCode"'   # what exit code did it return?
+docker logs my-app                           # what did it print before dying?
+
+# 2. Container starts but behaves wrong? Verify configuration:
+docker inspect my-app | grep -A 20 '"Env"'  # are env vars correct?
+docker inspect my-app | grep -A 10 '"Ports"' # are ports mapped as expected?
+docker inspect my-app | grep -A 10 '"Mounts"' # are volumes mounted correctly?
+
+# 3. Container healthy but app not responding? Check from inside:
+docker exec -it my-app sh
+  # then inside:
+  wget -qO- http://localhost:3000/health     # does the app respond internally?
+  env | grep DB_                             # do database env vars exist?
+  cat /app/config.json                       # is the config file present?
+
+# 4. Container keeps restarting? Check restart count and reason:
+docker inspect --format 'Restarts: {{.RestartCount}}' my-app
+docker logs --tail 20 my-app                 # last 20 lines before latest restart`,
+          caption: 'A practical debugging workflow — the 4-step sequence for diagnosing container issues.',
+        },
+      ],
+      keyPoints: [
+        '<code>docker inspect</code> — full JSON config dump. Always run this first when something is wrong.',
+        '<code>docker logs -f --tail 50</code> — stream live output. The primary way to read application logs.',
+        '<code>docker exec -it mycontainer sh</code> — open a shell for diagnosis. Never make persistent changes here.',
+        '<code>docker stats</code> — real-time CPU, memory, and network usage per container.',
+        '<code>docker inspect --format</code> — Go template filtering for scripted health checks and automation.',
+        'Most container problems are: wrong env vars, wrong port mapping, missing volume, or app crash on startup — <code>inspect</code> + <code>logs</code> will reveal all of these.',
       ],
     },
   ],

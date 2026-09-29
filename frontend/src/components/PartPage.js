@@ -200,6 +200,9 @@ export default function PartPage({ partId, onBack, onNavigate }) {
               callouts={topic.callouts}
               codeBlocks={topic.codeBlocks}
               keyPoints={topic.keyPoints}
+              image={topic.image}
+              secondaryImage={topic.secondaryImage}
+              images={topic.images}
             />
           ))}
 

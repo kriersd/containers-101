@@ -447,8 +447,8 @@ ARG LIBERTY_HTTP_PORT=9080
 ARG LIBERTY_HTTPS_PORT=9443
 
 # Bake port numbers into the image as ENV vars (runtime-overridable via --env-file)
-ENV LIBERTY_HTTP_PORT=${LIBERTY_HTTP_PORT} \\
-    LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT}
+ENV LIBERTY_HTTP_PORT=\${LIBERTY_HTTP_PORT} \\
+    LIBERTY_HTTPS_PORT=\${LIBERTY_HTTPS_PORT}
 
 # Copy server.xml and pre-install Liberty features (cached layer)
 COPY --chown=1001:0 backend/src/main/liberty/config/server.xml /config/server.xml
@@ -473,11 +473,11 @@ USER 1001
 # ↑ Explicitly switch to non-root. Even if base image does this, stating it
 #   here ensures scanners and OPA policies can verify it.
 
-EXPOSE ${LIBERTY_HTTP_PORT}
-EXPOSE ${LIBERTY_HTTPS_PORT}
+EXPOSE \${LIBERTY_HTTP_PORT}
+EXPOSE \${LIBERTY_HTTPS_PORT}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
-  CMD curl -f http://localhost:${LIBERTY_HTTP_PORT}/health || exit 1
+  CMD curl -f http://localhost:\${LIBERTY_HTTP_PORT}/health || exit 1
 # ↑ MicroProfile Health endpoint — polls /health
 # ↑ --start-period=60s: Liberty needs ~60s cold start — don't count early failures`,
           caption: 'Lines 56–104: Stage 3 — The final production image with all best practices.',
@@ -546,6 +546,191 @@ echo "That's Containers 101!"`,
         '<code>USER 1001</code> + <code>--chown=1001:0</code> throughout — non-root from start to finish.',
         '<code>HEALTHCHECK</code> polls MicroProfile Health — orchestrators use this to manage container lifecycle.',
         'All configuration from <code>.env</code> via <code>--env-file</code> — nothing hardcoded in the image.',
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Topic 5 — IBM MQ Advanced for Developers
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      id: 'ibm-mq-advanced',
+      title: 'Step 5 — IBM MQ Advanced for Developers',
+      tag: { label: 'Try It', type: 'purple' },
+      body: [
+        '<strong>IBM MQ</strong> is an enterprise messaging middleware that enables applications, systems, and services to communicate reliably across platforms and networks. IBM provides an official <strong>MQ Advanced for Developers</strong> container image — a fully functional MQ queue manager that you can run on your laptop for free, making it ideal for learning, development, and integration testing.',
+        'The image is published on Docker Hub (<code>ibmcom/mq</code>) and on the IBM Container Registry. It ships with a pre-configured queue manager (<code>QM1</code>), a default queue (<code>DEV.QUEUE.1</code>), and the MQ Console web UI so you can browse and manage your queues through a browser without installing any additional tools.',
+        'Running MQ in a container is a perfect demonstration of everything covered in this session: an enterprise-grade application, an official vendor image, port mapping (two ports — one for MQ listeners, one for the web console), environment variables for configuration, and a named volume to persist queue manager data across container restarts.',
+        'Once the container is running you can connect any MQ client application to <code>localhost:1414</code>, open the MQ Console at <code>https://localhost:9443/ibmmq/console</code>, and browse queue activity in real time — all from a single <code>docker run</code> command.',
+      ],
+      callouts: [
+        {
+          kind: 'info',
+          title: 'Free for development: ',
+          subtitle: 'MQ Advanced for Developers is free to use for development and testing. It includes all MQ Advanced features. It must not be used in production — for production use a licensed MQ installation.',
+        },
+        {
+          kind: 'warning',
+          title: 'Accept the licence: ',
+          subtitle: 'The container will not start unless you pass -e LICENSE=accept. This is IBM\'s way of ensuring you have acknowledged the developer licence terms.',
+        },
+      ],
+      codeBlocks: [
+        {
+          language: 'bash',
+          code: `# ── Step 1: Pull the IBM MQ Advanced for Developers image ────────────────
+docker pull icr.io/ibm-messaging/mq:latest
+
+# Or from Docker Hub:
+docker pull ibmcom/mq:latest
+
+# Confirm the image is local
+docker images | grep mq`,
+          caption: 'Pull the IBM MQ developer image from IBM Container Registry or Docker Hub.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Running with the default configuration ───────────────────────────────
+# From the official GitHub repo: https://github.com/ibm-messaging/mq-container
+#
+# Creates and starts a queue manager called QM1.
+# Maps port 1414 on the host to the MQ listener on port 1414 inside the container,
+# and port 9443 on the host to the web console on port 9443 inside the container.
+
+docker run \\
+  --env LICENSE=accept \\
+  --env MQ_QMGR_NAME=QM1 \\
+  --publish 1414:1414 \\
+  --publish 9443:9443 \\
+  --detach \\
+  icr.io/ibm-messaging/mq`,
+          caption: 'Default configuration — minimal run command straight from the GitHub documentation.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Running with the default configuration and a volume ──────────────────
+# The above example will not persist any configuration data or messages
+# across container runs. To persist data, use a named volume.
+
+# Step 1: Create the volume
+docker volume create qm1data
+
+# Step 2: Run with the volume mounted
+docker run \\
+  --env LICENSE=accept \\
+  --env MQ_QMGR_NAME=QM1 \\
+  --publish 1414:1414 \\
+  --publish 9443:9443 \\
+  --detach \\
+  --volume qm1data:/mnt/mqm \\
+  icr.io/ibm-messaging/mq`,
+          caption: 'Default configuration with a named volume — queue manager data and messages persist across container restarts.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Step 2: Create a named volume for MQ data persistence ────────────────
+docker volume create qm1data
+
+# ── Step 3: Run MQ Advanced for Developers ────────────────────────────────
+docker run -d \\
+  --name mq-dev \\
+  --env LICENSE=accept \\
+  --env MQ_QMGR_NAME=QM1 \\
+  --env MQ_APP_PASSWORD=passw0rd \\
+  --env MQ_ADMIN_PASSWORD=passw0rd \\
+  -p 1414:1414 \\
+  -p 9443:9443 \\
+  -v qm1data:/mnt/mqm \\
+  --restart unless-stopped \\
+  icr.io/ibm-messaging/mq:latest
+
+# Port mapping:
+#   1414 → MQ listener (clients connect here)
+#   9443 → MQ Console HTTPS (web UI)`,
+          caption: 'Run MQ with a named volume, port mapping, and environment variable configuration.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Step 4: Verify MQ is running ─────────────────────────────────────────
+docker logs mq-dev
+# Look for: "IBM MQ Queue Manager QM1 is now fully running"
+
+docker ps
+# mq-dev should show status "Up"
+
+# ── Step 5: Open the MQ Console ───────────────────────────────────────────
+# Visit in your browser (accept the self-signed cert warning):
+# https://localhost:9443/ibmmq/console
+#
+# Log in with:
+#   Username: admin
+#   Password: passw0rd  (set via MQ_ADMIN_PASSWORD above)
+#
+# You will see QM1 and its pre-configured queues:
+#   DEV.QUEUE.1    ← application queue
+#   DEV.DEAD.LETTER.QUEUE ← dead-letter queue`,
+          caption: 'Verify MQ is running and log in to the MQ Console.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Step 6: Inspect the running container ────────────────────────────────
+# Check environment variables (confirms licence + queue manager name)
+docker inspect mq-dev | grep -A 15 '"Env"'
+
+# Check port bindings
+docker inspect mq-dev | grep -A 10 '"Ports"'
+
+# Check volume mount
+docker inspect mq-dev | grep -A 8 '"Mounts"'
+
+# Check restart policy
+docker inspect mq-dev | grep -A 3 '"RestartPolicy"'
+
+# Tail the MQ logs in real time
+docker logs -f mq-dev`,
+          caption: 'Inspect the MQ container — confirming env vars, ports, volume, and restart policy.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Step 7: Exec into the container (optional) ───────────────────────────
+docker exec -it mq-dev bash
+
+# Inside the container — run MQ admin commands:
+dspmq                         # display queue managers
+runmqsc QM1                   # open MQ command line for QM1
+
+# Inside runmqsc — try these MQ commands:
+DISPLAY QLOCAL(DEV.QUEUE.1)   # show queue attributes
+DISPLAY CHSTATUS(*)           # show channel status
+DISPLAY CONN(*)               # show active connections
+END                           # exit runmqsc
+
+exit                          # exit the container shell`,
+          caption: 'Exec into the MQ container and run native MQ admin commands.',
+        },
+        {
+          language: 'bash',
+          code: `# ── Cleanup ────────────────────────────────────────────────────────────────
+docker stop mq-dev && docker rm mq-dev
+
+# Remove the volume (this deletes all queue manager data)
+docker volume rm qm1data
+
+# Remove the image
+docker rmi icr.io/ibm-messaging/mq:latest`,
+          caption: 'Cleanup — stop and remove the MQ container, volume, and image.',
+        },
+      ],
+      keyPoints: [
+        'IBM MQ Advanced for Developers is free for dev/test — pull and run in one command.',
+        '<code>LICENSE=accept</code> is required — the container refuses to start without it.',
+        'Two ports: <code>1414</code> (MQ listener for clients) and <code>9443</code> (MQ Console HTTPS).',
+        'Named volume <code>qm1data:/mnt/mqm</code> persists the queue manager across container restarts.',
+        'MQ Console at <code>https://localhost:9443/ibmmq/console</code> — full GUI queue manager management.',
+        '<code>docker exec -it mq-dev bash</code> then <code>runmqsc QM1</code> for native MQ CLI access.',
+        `<a href="https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=reference-mq-advanced-developers-container-image" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">MQ Advanced for Developers — container image docs ↗</a>`,
+        `<a href="https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=reference-mq-advanced-container-image" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">MQ Advanced container image reference ↗</a>`,
+        `<a href="https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=planning-support" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">Support for MQ in containers ↗</a>`,
+        `<a href="https://github.com/ibm-messaging/mq-container" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">ibm-messaging/mq-container — GitHub ↗</a>`,
       ],
     },
   ],

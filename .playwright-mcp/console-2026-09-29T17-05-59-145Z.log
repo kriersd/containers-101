@@ -1,0 +1,68 @@
+[     143ms] [INFO] [webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled, Progress disabled, Overlay enabled. @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[     144ms] [LOG] [HMR] Waiting for update signal from WDS... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[     166ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack://launch-next-chapter-ui/./node_modules/react-dom/cjs/react-dom.development.js?:29889
+[     234ms] [LOG] Running application "LaunchNextChapter" with appParams:
+ {rootTag: #root} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ webpack://launch-next-chapter-ui/./node_modules/react-native-web/dist/exports/AppRegistry/index.js?:77
+[     289ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[   57821ms] [INFO] [webpack-dev-server] App updated. Recompiling... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[   57929ms] [INFO] [webpack-dev-server] App hot update... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[   57929ms] [LOG] [HMR] Checking for updates on the server... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[   57946ms] [WARNING] [HMR] Cannot apply update. Need to do a full reload! @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[   57946ms] [WARNING] [HMR] Error: Aborted because ./src/content/part1.js is not accepted
+Update propagation: ./src/content/part1.js -> ./src/components/PartPage.js -> ./src/App.js -> ./src/index.js
+    at applyHandler (http://localhost:3000/main.js:6809:31)
+    at http://localhost:3000/main.js:6526:21
+    at Array.map (<anonymous>)
+    at internalApply (http://localhost:3000/main.js:6525:54)
+    at http://localhost:3000/main.js:6496:26
+    at waitForBlockingPromises (http://localhost:3000/main.js:6451:48)
+    at http://localhost:3000/main.js:6494:24 @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[   58141ms] [INFO] [webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled, Progress disabled, Overlay enabled. @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[   58142ms] [LOG] [HMR] Waiting for update signal from WDS... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[   58165ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack://launch-next-chapter-ui/./node_modules/react-dom/cjs/react-dom.development.js?:29889
+[   58234ms] [LOG] Running application "LaunchNextChapter" with appParams:
+ {rootTag: #root} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ webpack://launch-next-chapter-ui/./node_modules/react-native-web/dist/exports/AppRegistry/index.js?:77
+[  421406ms] [INFO] [webpack-dev-server] App updated. Recompiling... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  421515ms] [INFO] [webpack-dev-server] App hot update... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  421515ms] [LOG] [HMR] Checking for updates on the server... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[  421529ms] [WARNING] [HMR] Cannot apply update. Need to do a full reload! @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[  421529ms] [WARNING] [HMR] Error: Aborted because ./src/content/part3.js is not accepted
+Update propagation: ./src/content/part3.js -> ./src/components/PartPage.js -> ./src/App.js -> ./src/index.js
+    at applyHandler (http://localhost:3000/main.js:6820:31)
+    at http://localhost:3000/main.js:6537:21
+    at Array.map (<anonymous>)
+    at internalApply (http://localhost:3000/main.js:6536:54)
+    at http://localhost:3000/main.js:6507:26
+    at waitForBlockingPromises (http://localhost:3000/main.js:6462:48)
+    at http://localhost:3000/main.js:6505:24 @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[  421729ms] [INFO] [webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled, Progress disabled, Overlay enabled. @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  421730ms] [LOG] [HMR] Waiting for update signal from WDS... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[  421752ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack://launch-next-chapter-ui/./node_modules/react-dom/cjs/react-dom.development.js?:29889
+[  421821ms] [LOG] Running application "LaunchNextChapter" with appParams:
+ {rootTag: #root} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ webpack://launch-next-chapter-ui/./node_modules/react-native-web/dist/exports/AppRegistry/index.js?:77
+[  490498ms] [INFO] [webpack-dev-server] App updated. Recompiling... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  490601ms] [INFO] [webpack-dev-server] App hot update... @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  490601ms] [LOG] [HMR] Checking for updates on the server... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[  490616ms] [WARNING] [HMR] Cannot apply update. Need to do a full reload! @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[  490616ms] [WARNING] [HMR] Error: Aborted because ./src/content/part3.js is not accepted
+Update propagation: ./src/content/part3.js -> ./src/components/PartPage.js -> ./src/App.js -> ./src/index.js
+    at applyHandler (http://localhost:3000/main.js:6820:31)
+    at http://localhost:3000/main.js:6537:21
+    at Array.map (<anonymous>)
+    at internalApply (http://localhost:3000/main.js:6536:54)
+    at http://localhost:3000/main.js:6507:26
+    at waitForBlockingPromises (http://localhost:3000/main.js:6462:48)
+    at http://localhost:3000/main.js:6505:24 @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:40
+[  490800ms] [INFO] [webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled, Progress disabled, Overlay enabled. @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[  490801ms] [LOG] [HMR] Waiting for update signal from WDS... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[  490823ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack://launch-next-chapter-ui/./node_modules/react-dom/cjs/react-dom.development.js?:29889
+[  490893ms] [LOG] Running application "LaunchNextChapter" with appParams:
+ {rootTag: #root} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ webpack://launch-next-chapter-ui/./node_modules/react-native-web/dist/exports/AppRegistry/index.js?:77

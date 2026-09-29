@@ -3,6 +3,12 @@
  * 8 topics covering core concepts and technologies.
  */
 
+import containerLayersImg from '../images/container-layers.png';
+import copyOnWriteImg from '../images/container_copy_on_write_layers_blue.png';
+import imageLayersImg from '../images/image-layers.png';
+import containersVsVmsImg from '../images/what-are-containers-vs-vms.png';
+import cattleVsPetsImg from '../images/cattle-vs-pets.png';
+
 export const part1 = {
   id: 1,
   title: 'Introduction to Containers',
@@ -130,12 +136,34 @@ FROM scratch`,
       id: 'layered-filesystem',
       title: 'The Layered Filesystem & Union File System',
       tag: { label: 'Concept', type: 'teal' },
+      image: {
+        src: containerLayersImg,
+        alt: 'Diagram showing two containers (blue and orange) each with a writable layer on top, built on their respective image layers (Debian+emacs+Apache and BusyBox), all sharing the same host kernel at the base.',
+        caption: 'Two containers sharing the host kernel — each has its own image layers and a thin writable layer on top. Changes written at runtime go into the writable layer only; the image layers beneath are never modified.',
+        maxWidth: '480px',
+      },
       body: [
         'Every container image is made up of a stack of read-only <strong>layers</strong>. Each instruction in your Dockerfile that modifies the filesystem (<code>RUN</code>, <code>COPY</code>, <code>ADD</code>) produces a new layer. Layers are identified by a content hash (SHA256), so if the layer content hasn\'t changed, Docker reuses the cached version. This is what makes incremental builds fast.',
         'The technology that makes this possible is called a <strong>Union File System</strong> — most commonly OverlayFS on modern Linux kernels. UnionFS merges multiple directory trees into a single coherent view. You see one flat filesystem, but underneath it is a stack of layers where upper layers can shadow (override) files in lower layers without modifying them.',
         'When you run a container, Docker adds one final <strong>writable layer</strong> on top of all the read-only image layers. Any files the container creates or modifies are written into this top layer only. When the container is stopped and deleted, that writable layer is discarded. The underlying image layers are never changed — this is what makes containers <strong>immutable</strong> at the image level.',
+        '<strong>Copy-on-Write (CoW)</strong> is the mechanism that makes this efficient. When a running container needs to modify a file that exists in a lower read-only layer, the Union File System does not touch that layer. Instead it <em>copies</em> the file up into the writable layer first, then modifies the copy there. The original in the read-only layer is untouched. This means two containers from the same image share all the read-only layers in memory and on disk — only their small writable layers differ.',
         'The practical consequence for you as a developer is that <strong>the order of instructions in your Dockerfile directly controls your build cache</strong>. Instructions that change rarely (installing OS packages, copying <code>package.json</code>) should come first. Instructions that change frequently (copying your source code) should come last. This way a source code change only invalidates the last few layers, and earlier layers are served from cache in seconds.',
       ],
+      images: [
+        {
+          src: imageLayersImg,
+          position: 'top',
+          alt: 'Three-step diagram showing how each Dockerfile instruction builds a new layer: FROM debian produces the base layer, RUN apt-get install emacs adds an emacs layer on top, and RUN apt-get install apache2 adds an apache2 layer on top of that.',
+          caption: 'Each Dockerfile instruction that modifies the filesystem adds a new read-only layer — FROM creates the base, each RUN stacks on top. This is the image you distribute.',
+          maxWidth: '560px',
+        },
+      ],
+      secondaryImage: {
+        src: copyOnWriteImg,
+        alt: 'Diagram illustrating Copy-on-Write: a file from a read-only image layer is copied up into the writable container layer before being modified, leaving the original layer unchanged.',
+        caption: 'Copy-on-Write in action — the container copies a file from a read-only layer into its writable layer before modifying it. The original is never touched.',
+        maxWidth: '540px',
+      },
       callouts: [
         {
           kind: 'info',
@@ -303,7 +331,7 @@ FROM node:22-alpine AS runtime
 ARG NODE_ENV=production
 
 # Environment variable baked into the image
-ENV NODE_ENV=${NODE_ENV}
+ENV NODE_ENV=\${NODE_ENV}
 
 WORKDIR /app
 
@@ -347,6 +375,13 @@ CMD ["node", "dist/server.js"]`,
       id: 'containers-vs-vms',
       title: 'Containers vs Virtual Machines',
       tag: { label: 'Concept', type: 'teal' },
+      image: {
+        src: containersVsVmsImg,
+        alt: 'Side-by-side architecture diagram comparing Virtual Machines (app + guest OS + hypervisor stack) with Containers (app + libs sharing a single host OS kernel via a container runtime).',
+        caption: 'Virtual Machines carry a full guest OS per app — containers share the host kernel directly, removing the hypervisor and guest OS overhead entirely.',
+        maxWidth: '700px',
+      },
+
       body: [
         'Virtual Machines have been the foundation of cloud infrastructure for two decades. A hypervisor (such as VMware ESXi, KVM, or Hyper-V) creates virtualised hardware for each VM — virtual CPU, RAM, disk, network card. Each VM then runs a complete guest operating system on top of this virtual hardware. The isolation is strong: a compromised VM cannot directly access another VM\'s kernel.',
         'Containers take a fundamentally different approach. There is no hypervisor, no virtualised hardware, and no guest operating system. Instead, the host kernel itself provides isolation through namespaces and cgroups. Every container on the same host shares the same kernel — they are just differently constrained views of the same running OS.',
@@ -405,6 +440,12 @@ CMD ["node", "dist/server.js"]`,
         'Immutability has several important practical benefits. Every running container is guaranteed to be identical to every other container started from the same image — no configuration drift, no "works on my machine" problems. Rolling back a bad deployment means running the previous image tag, which is instant. Auditing what is in production is trivial: look at the image digest.',
         'Immutability does NOT mean your application cannot have persistent state. It means that state must be <strong>externalised</strong> — stored in a database, object store, or mounted volume that lives outside the container. The container itself is ephemeral. Its filesystem is thrown away when it stops. If your application needs to write data that must survive a container restart, that data must go to a volume or an external service.',
       ],
+      secondaryImage: {
+        src: cattleVsPetsImg,
+        alt: 'Illustration contrasting "pets" (individually named, carefully maintained servers) with "cattle" (identical, numbered, replaceable units) — used to explain the container immutability mindset.',
+        caption: '"Cattle, not pets" — when a container misbehaves, you replace it with a fresh one from the same image. You do not nurse it back to health.',
+        maxWidth: '620px',
+      },
       callouts: [
         {
           kind: 'warning',

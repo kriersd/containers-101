@@ -1,0 +1,113 @@
+- generic [ref=f4e3]:
+  - banner "Containers 101" [ref=f4e4]:
+    - link "Containers 101" [ref=f4e5] [cursor=pointer]:
+      - /url: "#"
+    - generic [ref=f4e7]:
+      - button "Switch to dark mode" [ref=f4e9] [cursor=pointer]:
+        - generic [ref=f4e10]: 🌙
+      - tooltip [aria-hidden]
+  - main [ref=f4e11]:
+    - generic [ref=f4e12]:
+      - generic [ref=f4e14]:
+        - generic [ref=f4e15]:
+          - paragraph [ref=f4e16]: Education Session
+          - heading "Containers 101" [level=1] [ref=f4e17]
+          - paragraph [ref=f4e18]: A guided walkthrough of container technology — from foundational concepts to hands-on examples. By the end of this session you will understand what containers are, how to build and run them safely, and how to apply best practices in real-world deployments.
+        - img "Developer working with container building blocks and code screens" [ref=f4e20]
+      - generic [ref=f4e22]:
+        - paragraph [ref=f4e24]: Select a part to begin.
+        - generic [ref=f4e26] [cursor=pointer]:
+          - generic [ref=f4e27]: Part 1
+          - heading "Introduction to Containers" [level=2] [ref=f4e29]
+          - paragraph [ref=f4e30]: Core concepts, architectures, the layered filesystem, Podman vs Docker, Dockerfile anatomy, and why containers beat VMs.
+          - paragraph [ref=f4e31]: Topics
+          - list [ref=f4e32]:
+            - listitem [ref=f4e33]: – What is a Container?
+            - listitem [ref=f4e34]: "– Architecture & OS: Why They Matter"
+            - listitem [ref=f4e35]: – The Layered Filesystem & Union File System
+            - listitem [ref=f4e36]: – Podman vs Docker
+            - listitem [ref=f4e37]: – The Dockerfile / Containerfile Deep Dive
+            - listitem [ref=f4e38]: – Containers vs Virtual Machines
+            - listitem [ref=f4e39]: – Container Immutability
+            - listitem [ref=f4e40]: "– Docker Hub & Public Registries: Tread Carefully"
+          - paragraph [ref=f4e41]: Start Part 1 →
+        - generic [ref=f4e43] [cursor=pointer]:
+          - generic [ref=f4e44]: Part 2
+          - heading "Building & Running Containers" [level=2] [ref=f4e46]
+          - paragraph [ref=f4e47]: Running containers in practice — env vars, volumes, port mapping, restart policies, privileged mode, and image tagging.
+          - paragraph [ref=f4e48]: Topics
+          - list [ref=f4e49]:
+            - listitem [ref=f4e50]: – Container Run Options
+            - listitem [ref=f4e51]: – Environment Variables
+            - listitem [ref=f4e52]: – The .dockerignore File
+            - listitem [ref=f4e53]: "– Volume Mounts: Persisting Data"
+            - listitem [ref=f4e54]: "– Using a .env File: The Right Way"
+            - listitem [ref=f4e55]: – Port Mapping
+            - listitem [ref=f4e56]: – Restart Policies
+            - listitem [ref=f4e57]: – Privileged Mode & Container Security
+            - listitem [ref=f4e58]: – Image Tagging & Sharing
+            - listitem [ref=f4e59]: – Inspecting & Debugging Running Containers
+          - paragraph [ref=f4e60]: Start Part 2 →
+        - generic [ref=f4e62] [cursor=pointer]:
+          - generic [ref=f4e63]: Part 3
+          - heading "Hands-On Examples" [level=2] [ref=f4e65]
+          - paragraph [ref=f4e66]: Live walkthroughs — pull your first container, run Ghost blog, build a Node.js app from scratch, and tour this repo.
+          - paragraph [ref=f4e67]: Topics
+          - list [ref=f4e68]:
+            - listitem [ref=f4e69]: – Step 1 — Pulling & Running Your First Container
+            - listitem [ref=f4e70]: – Step 2 — Running Ghost Blog
+            - listitem [ref=f4e71]: – Step 3 — Build a Container from Scratch
+            - listitem [ref=f4e72]: – Step 4 — Touring This Repository's Dockerfile
+            - listitem [ref=f4e73]: – Step 5 — IBM MQ Advanced for Developers
+          - paragraph [ref=f4e74]: Start Part 3 →
+      - generic [ref=f4e77]:
+        - paragraph [ref=f4e78]: Additional Resources
+        - generic [ref=f4e79]:
+          - paragraph [ref=f4e80]: Installation
+          - list [ref=f4e81]:
+            - listitem [ref=f4e82]:
+              - text: –
+              - link "Podman Install ↗" [ref=f4e83] [cursor=pointer]:
+                - /url: https://podman.io/docs/installation
+            - listitem [ref=f4e84]:
+              - text: –
+              - link "Podman Desktop Install ↗" [ref=f4e85] [cursor=pointer]:
+                - /url: https://podman-desktop.io/docs/installation
+            - listitem [ref=f4e86]:
+              - text: –
+              - link "Red Hat Developer — Podman Desktop Install ↗" [ref=f4e87] [cursor=pointer]:
+                - /url: https://developers.redhat.com/learning/learn:openshift:install-podman-desktop-and-connect-it-your-developer-sandbox/resource/resources:install-and-initialize-podman-desktop-and-podman
+            - listitem [ref=f4e88]:
+              - text: –
+              - link "Docker Engine Install ↗" [ref=f4e89] [cursor=pointer]:
+                - /url: https://docs.docker.com/engine/install/
+            - listitem [ref=f4e90]:
+              - text: –
+              - link "Docker Desktop Windows Install ↗" [ref=f4e91] [cursor=pointer]:
+                - /url: https://docs.docker.com/desktop/setup/install/windows-install/
+            - listitem [ref=f4e92]:
+              - text: –
+              - link "Docker — Get Started ↗" [ref=f4e93] [cursor=pointer]:
+                - /url: https://www.docker.com/get-started/
+        - generic [ref=f4e94]:
+          - paragraph [ref=f4e95]: Reference
+          - list [ref=f4e96]:
+            - listitem [ref=f4e97]:
+              - text: –
+              - link "Docker CLI Cheat Sheet ↗" [ref=f4e98] [cursor=pointer]:
+                - /url: https://docs.docker.com/get-started/docker_cheatsheet.pdf
+            - listitem [ref=f4e99]:
+              - text: –
+              - link "Docker Hub ↗" [ref=f4e100] [cursor=pointer]:
+                - /url: https://hub.docker.com/
+        - generic [ref=f4e101]:
+          - paragraph [ref=f4e102]: Deep Dives
+          - list [ref=f4e103]:
+            - listitem [ref=f4e104]:
+              - text: –
+              - link "Understand Docker Volumes as a Pro ↗" [ref=f4e105] [cursor=pointer]:
+                - /url: https://faun.pub/understand-docker-volumes-as-a-pro-86b85dd8b3e8?gi=d0fb7e16a1ad
+            - listitem [ref=f4e106]:
+              - text: –
+              - link "Shell Access to Docker Containers with docker exec ↗" [ref=f4e107] [cursor=pointer]:
+                - /url: https://goteleport.com/blog/shell-access-docker-container-with-ssh-and-docker-exec/

@@ -1,0 +1,634 @@
+- generic [ref=e3]:
+  - banner "Containers 101" [ref=e4]:
+    - 'link "Containers 101 — Part 1: Introduction to Containers" [ref=e74] [cursor=pointer]':
+      - /url: "#"
+    - generic [ref=e7]:
+      - button "Switch to dark mode" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: 🌙
+      - tooltip [aria-hidden]
+  - main [ref=e11]:
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - button "Overview" [ref=e77] [cursor=pointer]
+        - generic [ref=e80]:
+          - generic [ref=e81]: Part 1
+          - generic [ref=e83]: Introduction to Containers
+        - button "Part 2" [ref=e84] [cursor=pointer]
+      - generic [ref=e87]:
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: Topics
+          - navigation "Table of contents" [ref=e91]:
+            - button "What is a Container?" [ref=e92] [cursor=pointer]
+            - 'button "Architecture & OS: Why They Matter" [ref=e93] [cursor=pointer]'
+            - button "The Layered Filesystem & Union File System" [active] [ref=e94] [cursor=pointer]
+            - button "Podman vs Docker" [ref=e95] [cursor=pointer]
+            - button "The Dockerfile / Containerfile Deep Dive" [ref=e96] [cursor=pointer]
+            - button "Containers vs Virtual Machines" [ref=e97] [cursor=pointer]
+            - button "Container Immutability" [ref=e98] [cursor=pointer]
+            - 'button "Docker Hub & Public Registries: Tread Carefully" [ref=e99] [cursor=pointer]'
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - generic [ref=e103]: Part 1
+              - heading "Introduction to Containers" [level=1] [ref=e105]
+            - paragraph [ref=e106]: Core concepts, technologies, and the fundamentals of containerisation.
+          - generic [ref=e108]:
+            - generic [ref=e110]:
+              - heading "What is a Container?" [level=2] [ref=e111]
+              - generic "Concept" [ref=e113]
+            - generic [ref=e114]:
+              - paragraph [ref=e115]:
+                - text: A
+                - strong [ref=e116]: container
+                - text: "is a standard unit of software that packages code and all its dependencies — libraries, runtime, configuration — so the application runs quickly and reliably across different computing environments. Think of it like a shipping container: a standardised steel box that can be loaded onto any ship, train, or truck regardless of what is inside."
+              - paragraph [ref=e117]: Containers share the host machine's operating system kernel rather than each carrying a full OS. This makes them dramatically lighter than virtual machines — a container typically starts in milliseconds and consumes megabytes of memory instead of gigabytes.
+              - paragraph [ref=e118]:
+                - text: "There are two closely related terms you will use constantly: an"
+                - strong [ref=e119]: image
+                - text: is the static, read-only blueprint that describes everything needed to run your application. A
+                - strong [ref=e120]: container
+                - text: is the running instance of that image — like the difference between a class definition and an object in a programming language.
+              - paragraph [ref=e121]:
+                - text: "Under the hood, a container is just a normal Linux process that is isolated from everything else using two kernel features:"
+                - strong [ref=e122]: namespaces
+                - text: (which give the process its own view of the filesystem, network, and process table) and
+                - strong [ref=e123]: control groups (cgroups)
+                - text: (which limit how much CPU and memory it can consume). There is no virtualisation hardware involved — the container shares the real kernel.
+            - status [ref=e126]:
+              - generic [ref=e131]:
+                - generic [ref=e132]: "Container ≠ VM:"
+                - generic [ref=e133]: A container is a sandboxed process, not a separate operating system. This is the single most important conceptual distinction in this session.
+            - generic [ref=e135]:
+              - paragraph [ref=e136]: bash
+              - generic [ref=e137]:
+                - textbox "Copy to clipboard" [ref=e138]:
+                  - code [ref=e140]: "# Run a container from the official nginx image docker run --name my-web -p 8080:80 nginx # List all running containers docker ps # List all images on your machine docker images # Stop and remove the container docker stop my-web && docker rm my-web"
+                - generic [ref=e141]:
+                  - button "Copy to clipboard" [ref=e143] [cursor=pointer]
+                  - tooltip [aria-hidden]
+              - paragraph [ref=e147]: Your first container — download an image and run it in seconds.
+            - generic [ref=e149]:
+              - paragraph [ref=e150]: Key Points
+              - list [ref=e151]:
+                - listitem [ref=e152]: – A container packages code + dependencies into a single portable unit.
+                - listitem [ref=e153]:
+                  - text: –
+                  - generic [ref=e154]:
+                    - text: An
+                    - strong [ref=e155]: image
+                    - text: is the blueprint; a
+                    - strong [ref=e156]: container
+                    - text: is the running instance.
+                - listitem [ref=e157]:
+                  - text: –
+                  - generic [ref=e158]:
+                    - text: Containers use Linux
+                    - strong [ref=e159]: namespaces
+                    - text: for isolation and
+                    - strong [ref=e160]: cgroups
+                    - text: for resource limits.
+                - listitem [ref=e161]: – No hypervisor is involved — containers share the host kernel directly.
+                - listitem [ref=e162]: "– Start time: milliseconds. Size: megabytes. Density: hundreds per host."
+          - generic [ref=e164]:
+            - generic [ref=e166]:
+              - 'heading "Architecture & OS: Why They Matter" [level=2] [ref=e167]'
+              - generic "Concept" [ref=e169]
+            - generic [ref=e170]:
+              - paragraph [ref=e171]:
+                - text: Container images are compiled for a specific CPU architecture. The two you will encounter most are
+                - strong [ref=e172]: amd64
+                - text: (also called x86_64 — Intel/AMD processors, most cloud VMs and data-centre servers) and
+                - strong [ref=e173]: arm64
+                - text: (also called aarch64 — Apple Silicon Macs, AWS Graviton instances, Raspberry Pi). An image built for amd64 will not run natively on arm64, and vice versa.
+              - paragraph [ref=e174]:
+                - text: This matters enormously in practice. If you build on an Apple M-series laptop and push to a Linux server running on Intel, the image will fail at runtime with a cryptic "exec format error". The solution is to always build images targeting the deployment architecture using the
+                - code [ref=e175]: "--platform"
+                - text: flag, or to create multi-architecture manifest lists that bundle both variants.
+              - paragraph [ref=e176]:
+                - text: The
+                - strong [ref=e177]: base image OS
+                - text: also matters. Your options range from a full OS like Ubuntu or Debian, to minimal variants like Alpine Linux (about 5 MB), to Red Hat Universal Base Image (UBI, fully supported for enterprise deployments), to Distroless or Scratch images that contain literally nothing except your application binary. The choice affects image size, available tooling, and your security attack surface.
+              - paragraph [ref=e178]:
+                - text: "A good rule of thumb: choose the smallest base that still ships the runtime your application needs. Alpine with"
+                - code [ref=e179]: node:22-alpine
+                - text: is a great choice for Node.js apps. UBI is the right choice when running on Red Hat OpenShift. Scratch is for statically compiled Go binaries that need no OS at all.
+            - generic [ref=e180]:
+              - status [ref=e182]:
+                - generic [ref=e187]:
+                  - generic [ref=e188]: "\"exec format error\":"
+                  - generic [ref=e189]: This runtime error almost always means you are trying to run an image compiled for the wrong CPU architecture. Always match --platform to your deployment target.
+              - status [ref=e191]:
+                - generic [ref=e196]:
+                  - generic [ref=e197]: "Enterprise tip:"
+                  - generic [ref=e198]: Red Hat Universal Base Image (UBI) images are freely redistributable and receive CVE patches on the Red Hat errata cycle — a strong choice for enterprise and OpenShift deployments.
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - paragraph [ref=e201]: bash
+                - generic [ref=e202]:
+                  - textbox "Copy to clipboard" [ref=e203]:
+                    - code [ref=e205]: "# Build explicitly for amd64 (Intel/AMD — most cloud servers) docker build --platform linux/amd64 -t myapp:latest . # Build explicitly for arm64 (Apple Silicon, AWS Graviton) docker build --platform linux/arm64 -t myapp:latest . # Build a multi-arch manifest for both platforms at once docker buildx build \\ --platform linux/amd64,linux/arm64 \\ -t myregistry/myapp:latest \\ --push . # Check what architecture an image was built for docker inspect myapp:latest | grep Architecture"
+                  - generic [ref=e206]:
+                    - button "Copy to clipboard" [ref=e208] [cursor=pointer]
+                    - tooltip [aria-hidden]
+                - paragraph [ref=e212]: Using --platform to target specific CPU architectures.
+              - generic [ref=e213]:
+                - paragraph [ref=e214]: dockerfile
+                - generic [ref=e215]:
+                  - textbox "Copy to clipboard" [ref=e216]:
+                    - code [ref=e218]: "# Minimal Node.js — Alpine Linux (~5 MB base) FROM node:22-alpine # Red Hat Universal Base Image — enterprise grade FROM registry.access.redhat.com/ubi9/nodejs-22 # Distroless — no shell, no package manager, minimal attack surface FROM gcr.io/distroless/nodejs22-debian12 # Scratch — nothing at all (only for statically compiled binaries) FROM scratch"
+                  - generic [ref=e219]:
+                    - button "Copy to clipboard" [ref=e221] [cursor=pointer]
+                    - tooltip [aria-hidden]
+                - paragraph [ref=e225]: Common base image choices and their trade-offs.
+            - generic [ref=e227]:
+              - paragraph [ref=e228]: Key Points
+              - list [ref=e229]:
+                - listitem [ref=e230]:
+                  - text: –
+                  - generic [ref=e231]:
+                    - strong [ref=e232]: amd64
+                    - text: = Intel/AMD (most cloud VMs).
+                    - strong [ref=e233]: arm64
+                    - text: = Apple Silicon, AWS Graviton.
+                - listitem [ref=e234]:
+                  - text: –
+                  - generic [ref=e235]:
+                    - text: Building on a Mac (arm64) and deploying to a Linux server (amd64) requires explicit
+                    - code [ref=e236]: "--platform linux/amd64"
+                    - text: .
+                - listitem [ref=e237]:
+                  - text: –
+                  - generic [ref=e238]:
+                    - text: Use
+                    - code [ref=e239]: docker buildx
+                    - text: to create multi-arch images that run on both architectures.
+                - listitem [ref=e240]: – Smaller base images (Alpine, Distroless) = smaller attack surface and faster pulls.
+                - listitem [ref=e241]: – UBI is the right base for Red Hat OpenShift and enterprise environments.
+          - generic [ref=e243]:
+            - generic [ref=e245]:
+              - heading "The Layered Filesystem & Union File System" [level=2] [ref=e246]
+              - generic "Concept" [ref=e248]
+            - generic [ref=e250]:
+              - img "Diagram showing two containers (blue and orange) each with a writable layer on top, built on their respective image layers (Debian+emacs+Apache and BusyBox), all sharing the same host kernel at the base." [ref=e251]
+              - paragraph [ref=e252]: Two containers sharing the host kernel — each has its own image layers and a thin writable layer on top. Changes written at runtime go into the writable layer only; the image layers beneath are never modified.
+            - generic [ref=e254]:
+              - 'img "Three-step diagram showing how each Dockerfile instruction builds a new layer: FROM debian produces the base layer, RUN apt-get install emacs adds an emacs layer on top, and RUN apt-get install apache2 adds an apache2 layer on top of that." [ref=e255]'
+              - paragraph [ref=e256]: Each Dockerfile instruction that modifies the filesystem adds a new read-only layer — FROM creates the base, each RUN stacks on top. This is the image you distribute.
+            - generic [ref=e257]:
+              - paragraph [ref=e258]:
+                - text: Every container image is made up of a stack of read-only
+                - strong [ref=e259]: layers
+                - text: . Each instruction in your Dockerfile that modifies the filesystem (
+                - code [ref=e260]: RUN
+                - text: ","
+                - code [ref=e261]: COPY
+                - text: ","
+                - code [ref=e262]: ADD
+                - text: ) produces a new layer. Layers are identified by a content hash (SHA256), so if the layer content hasn't changed, Docker reuses the cached version. This is what makes incremental builds fast.
+              - paragraph [ref=e263]:
+                - text: The technology that makes this possible is called a
+                - strong [ref=e264]: Union File System
+                - text: — most commonly OverlayFS on modern Linux kernels. UnionFS merges multiple directory trees into a single coherent view. You see one flat filesystem, but underneath it is a stack of layers where upper layers can shadow (override) files in lower layers without modifying them.
+              - paragraph [ref=e265]:
+                - text: When you run a container, Docker adds one final
+                - strong [ref=e266]: writable layer
+                - text: on top of all the read-only image layers. Any files the container creates or modifies are written into this top layer only. When the container is stopped and deleted, that writable layer is discarded. The underlying image layers are never changed — this is what makes containers
+                - strong [ref=e267]: immutable
+                - text: at the image level.
+              - paragraph [ref=e268]:
+                - strong [ref=e269]: Copy-on-Write (CoW)
+                - text: is the mechanism that makes this efficient. When a running container needs to modify a file that exists in a lower read-only layer, the Union File System does not touch that layer. Instead it
+                - emphasis [ref=e270]: copies
+                - text: the file up into the writable layer first, then modifies the copy there. The original in the read-only layer is untouched. This means two containers from the same image share all the read-only layers in memory and on disk — only their small writable layers differ.
+              - paragraph [ref=e271]:
+                - text: The practical consequence for you as a developer is that
+                - strong [ref=e272]: the order of instructions in your Dockerfile directly controls your build cache
+                - text: . Instructions that change rarely (installing OS packages, copying
+                - code [ref=e273]: package.json
+                - text: ) should come first. Instructions that change frequently (copying your source code) should come last. This way a source code change only invalidates the last few layers, and earlier layers are served from cache in seconds.
+            - generic [ref=e275]:
+              - 'img "Diagram illustrating Copy-on-Write: a file from a read-only image layer is copied up into the writable container layer before being modified, leaving the original layer unchanged." [ref=e276]'
+              - paragraph [ref=e277]: Copy-on-Write in action — the container copies a file from a read-only layer into its writable layer before modifying it. The original is never touched.
+            - generic [ref=e278]:
+              - status [ref=e280]:
+                - generic [ref=e285]:
+                  - generic [ref=e286]: "Cache invalidation rule:"
+                  - generic [ref=e287]: When any layer changes, ALL layers below it are rebuilt from scratch. Put stable things first (base image, OS deps, package manifests) and frequently-changing code last.
+              - status [ref=e289]:
+                - generic [ref=e294]:
+                  - generic [ref=e295]: "Secrets in layers:"
+                  - generic [ref=e296]: If you copy a secret into an image and delete it in a later RUN step, the secret is still visible in the earlier layer. Use build args, secrets mounts, or multi-stage builds to avoid leaking credentials into image history.
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - paragraph [ref=e299]: dockerfile
+                - generic [ref=e300]:
+                  - textbox "Copy to clipboard" [ref=e301]:
+                    - code [ref=e303]: "# BAD — copying all source first invalidates cache on every code change FROM node:22-alpine COPY . /app # ← changes every time any file changes RUN npm ci # ← reinstalls all deps every build RUN npm run build # GOOD — copy manifests first, install, then copy source FROM node:22-alpine WORKDIR /app COPY package.json package-lock.json ./ # ← only changes when deps change RUN npm ci # ← cached unless package.json changed COPY . . # ← changes every build, but npm ci is cached RUN npm run build"
+                  - generic [ref=e304]:
+                    - button "Copy to clipboard" [ref=e306] [cursor=pointer]
+                    - tooltip [aria-hidden]
+                - paragraph [ref=e310]: Layer ordering for optimal Docker build cache utilisation.
+              - generic [ref=e311]:
+                - paragraph [ref=e312]: bash
+                - generic [ref=e313]:
+                  - textbox "Copy to clipboard" [ref=e314]:
+                    - code [ref=e316]: "# Inspect the layers of any image docker image history myapp:latest # See layer sizes and commands that created them docker image history --no-trunc myapp:latest # Dive is a popular third-party tool for layer exploration docker run --rm -it \\ -v /var/run/docker.sock:/var/run/docker.sock \\ wagoodman/dive:latest myapp:latest"
+                  - generic [ref=e317]:
+                    - button "Copy to clipboard" [ref=e319] [cursor=pointer]
+                    - tooltip [aria-hidden]
+                - paragraph [ref=e323]: Tools to inspect image layers.
+            - generic [ref=e325]:
+              - paragraph [ref=e326]: Key Points
+              - list [ref=e327]:
+                - listitem [ref=e328]:
+                  - text: –
+                  - generic [ref=e329]:
+                    - text: Every
+                    - code [ref=e330]: RUN
+                    - text: ","
+                    - code [ref=e331]: COPY
+                    - text: ","
+                    - code [ref=e332]: ADD
+                    - text: instruction creates a new read-only layer.
+                - listitem [ref=e333]:
+                  - text: –
+                  - generic [ref=e334]:
+                    - strong [ref=e335]: OverlayFS
+                    - text: merges layers into a single filesystem view — upper layers shadow lower ones.
+                - listitem [ref=e336]: – A thin writable layer is added at runtime; it is discarded when the container is removed.
+                - listitem [ref=e337]:
+                  - text: –
+                  - generic [ref=e338]:
+                    - text: Put rarely-changing instructions (base image, OS packages, dependencies)
+                    - strong [ref=e339]: early
+                    - text: in the Dockerfile.
+                - listitem [ref=e340]:
+                  - text: –
+                  - generic [ref=e341]:
+                    - text: Put frequently-changing instructions (source code copy, final build)
+                    - strong [ref=e342]: late
+                    - text: in the Dockerfile.
+                - listitem [ref=e343]: – Secrets deleted in a later layer are still readable in the earlier layer's history.
+          - generic [ref=e345]:
+            - generic [ref=e347]:
+              - heading "Podman vs Docker" [level=2] [ref=e348]
+              - generic "Technology" [ref=e350]
+            - generic [ref=e351]:
+              - paragraph [ref=e352]:
+                - strong [ref=e353]: Docker
+                - text: is the original container platform and still the most widely used. Its architecture revolves around a central background daemon (
+                - code [ref=e354]: dockerd
+                - text: ) that runs as root and manages all containers, images, and networks. Your
+                - code [ref=e355]: docker
+                - text: CLI commands communicate with this daemon over a Unix socket.
+              - paragraph [ref=e356]:
+                - strong [ref=e357]: Podman
+                - text: is a daemonless container engine developed by Red Hat. Instead of a long-running daemon, Podman forks a new process for each operation directly from your CLI. There is no root-owned background service. This means Podman can run in
+                - strong [ref=e358]: rootless mode
+                - text: — containers managed entirely by your normal user account, without any privileged daemon, which is a meaningful security improvement.
+              - paragraph [ref=e359]:
+                - text: Both tools are
+                - strong [ref=e360]: OCI-compliant
+                - text: (Open Container Initiative). Images built with Docker run on Podman and vice versa. Podman even ships a
+                - code [ref=e361]: podman-docker
+                - text: compatibility package that installs a
+                - code [ref=e362]: docker
+                - text: alias pointing to Podman, so existing scripts and CI pipelines work without modification.
+              - paragraph [ref=e363]: On Red Hat Enterprise Linux, CentOS Stream, and Fedora, Podman is the default and Docker is not available in the standard repos. On macOS and Windows the picture is reversed — Docker Desktop is the dominant choice for development, though Podman Desktop is a capable alternative. In OpenShift, container images are built and run by the platform itself using CRI-O, not Docker or Podman directly.
+            - generic [ref=e364]:
+              - status [ref=e366]:
+                - generic [ref=e371]:
+                  - generic [ref=e372]: "Rootless by default:"
+                  - generic [ref=e373]: Podman runs containers as your own user account. Even if a process inside the container escapes its sandbox, it has no more host privileges than you do.
+              - status [ref=e375]:
+                - generic [ref=e380]:
+                  - generic [ref=e381]: "Drop-in replacement:"
+                  - generic [ref=e382]: alias docker=podman works in most cases. The command syntax is identical because both conform to the same OCI standard.
+            - generic [ref=e384]:
+              - paragraph [ref=e385]: bash
+              - generic [ref=e386]:
+                - textbox "Copy to clipboard" [ref=e387]:
+                  - code [ref=e389]: "# Docker — daemon-based (daemon must be running) docker run -d --name web nginx docker build -t myapp . docker push myregistry/myapp:latest # Podman — daemonless, identical syntax podman run -d --name web nginx podman build -t myapp . podman push myregistry/myapp:latest # Run Podman in rootless mode (no sudo required) podman run --rm hello-world # Check if Docker daemon is running (Docker-specific) docker info | grep \"Server Version\" # Podman has no daemon to check — it just works podman info | grep \"version\""
+                - generic [ref=e390]:
+                  - button "Copy to clipboard" [ref=e392] [cursor=pointer]
+                  - tooltip [aria-hidden]
+                - button "Show more" [ref=e396] [cursor=pointer]
+              - paragraph [ref=e400]: Docker and Podman commands are interchangeable in most situations.
+            - generic [ref=e402]:
+              - paragraph [ref=e403]: Key Points
+              - list [ref=e404]:
+                - listitem [ref=e405]:
+                  - text: –
+                  - generic [ref=e406]:
+                    - strong [ref=e407]: Docker
+                    - text: ": daemon-based, root-owned service, most widely used."
+                - listitem [ref=e408]:
+                  - text: –
+                  - generic [ref=e409]:
+                    - strong [ref=e410]: Podman
+                    - text: ": daemonless, rootless capable, default on RHEL/Fedora/OpenShift."
+                - listitem [ref=e411]: – Both are OCI-compliant — images are fully interchangeable.
+                - listitem [ref=e412]:
+                  - text: –
+                  - generic [ref=e413]:
+                    - code [ref=e414]: alias docker=podman
+                    - text: works in most cases without script changes.
+                - listitem [ref=e415]: – Rootless Podman is more secure — container escapes cannot gain host root access.
+                - listitem [ref=e416]: – For OpenShift deployments, neither Docker nor Podman runs the containers — CRI-O does.
+          - generic [ref=e418]:
+            - generic [ref=e420]:
+              - heading "The Dockerfile / Containerfile Deep Dive" [level=2] [ref=e421]
+              - generic "Build" [ref=e423]
+            - generic [ref=e424]:
+              - paragraph [ref=e425]:
+                - text: A
+                - strong [ref=e426]: Dockerfile
+                - text: (or
+                - code [ref=e427]: Containerfile
+                - text: in Podman terminology — they are identical in syntax) is a plain-text recipe that describes how to build a container image. It is a sequence of instructions, each of which either modifies the filesystem or sets metadata. When you run
+                - code [ref=e428]: docker build
+                - text: ", Docker reads this file top to bottom and produces a layered image."
+              - paragraph [ref=e429]:
+                - text: "The most important instructions are:"
+                - code [ref=e430]: FROM
+                - text: (sets the base image — every Dockerfile must start here),
+                - code [ref=e431]: RUN
+                - text: (executes a shell command, produces a new layer),
+                - code [ref=e432]: COPY
+                - text: (copies files from your local machine into the image),
+                - code [ref=e433]: WORKDIR
+                - text: (sets the working directory for subsequent instructions),
+                - code [ref=e434]: ENV
+                - text: (sets environment variables baked into the image),
+                - code [ref=e435]: ARG
+                - text: (defines build-time variables passed with
+                - code [ref=e436]: "--build-arg"
+                - text: ),
+                - code [ref=e437]: EXPOSE
+                - text: (documents which port the app listens on — it does NOT publish the port),
+                - code [ref=e438]: CMD
+                - text: (the default command to run when the container starts — can be overridden),
+                - code [ref=e439]: ENTRYPOINT
+                - text: (the executable that always runs — harder to override),
+                - code [ref=e440]: USER
+                - text: (switches to a non-root user for security), and
+                - code [ref=e441]: HEALTHCHECK
+                - text: (tells Docker how to test whether the container is healthy).
+              - paragraph [ref=e442]:
+                - strong [ref=e443]: Multi-stage builds
+                - text: are one of the most powerful Dockerfile patterns. You use multiple
+                - code [ref=e444]: FROM
+                - text: instructions, each starting a new stage. The first stage might install a full build toolchain and compile your app. The final stage copies only the compiled output into a clean minimal base image — discarding all build tools, intermediate files, and any secrets used during compilation. This keeps the production image small and secure.
+              - paragraph [ref=e445]: "The Dockerfile in this repository is a real multi-stage example: Stage 1 uses a full Maven JDK image to compile the Java backend; Stage 2 uses Node.js to build the React frontend; Stage 3 copies both compiled artefacts into a minimal Open Liberty runtime image and runs as a non-root user. Nothing from the build stages makes it into the final image except the compiled code."
+            - generic [ref=e446]:
+              - status [ref=e448]:
+                - generic [ref=e453]:
+                  - generic [ref=e454]: "EXPOSE does not publish:"
+                  - generic [ref=e455]: EXPOSE is documentation only. The port is not accessible from outside the container until you explicitly publish it with -p when running the container.
+              - status [ref=e457]:
+                - generic [ref=e462]:
+                  - generic [ref=e463]: "CMD vs ENTRYPOINT:"
+                  - generic [ref=e464]: "ENTRYPOINT defines the executable; CMD provides default arguments. Together they form: ENTRYPOINT + CMD = final run command. CMD alone is the most common pattern for application containers."
+            - generic [ref=e466]:
+              - paragraph [ref=e467]: dockerfile
+              - generic [ref=e468]:
+                - textbox "Copy to clipboard" [ref=e469]:
+                  - code [ref=e471]: "# ── Stage 1: Build the application ───────────────────────────────────── FROM node:22-alpine AS builder # Set working directory for all subsequent instructions WORKDIR /app # Copy dependency manifests first (cache-friendly layer order) COPY package.json package-lock.json ./ # Install dependencies — this layer is cached until package.json changes RUN npm ci --ignore-scripts # Copy application source — this layer rebuilds on every code change COPY src/ ./src/ # Compile / bundle the application RUN npm run build # ── Stage 2: Production runtime ────────────────────────────────────────── FROM node:22-alpine AS runtime # Build-time argument — can be passed with --build-arg ARG NODE_ENV=production # Environment variable baked into the image ENV NODE_ENV=${NODE_ENV} WORKDIR /app # Copy ONLY the compiled output from the build stage — not node_modules or src COPY --from=builder /app/dist ./dist COPY --from=builder /app/package.json ./ # Install only production dependencies RUN npm ci --omit=dev # Document the port (does NOT publish it) EXPOSE 3000 # Switch to non-root user for security USER node # Health check — Docker polls this to know if the container is healthy HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\ CMD wget -qO- http://localhost:3000/health || exit 1 # Default startup command CMD [\"node\", \"dist/server.js\"]"
+                - generic [ref=e472]:
+                  - button "Copy to clipboard" [ref=e474] [cursor=pointer]
+                  - tooltip [aria-hidden]
+                - button "Show more" [ref=e478] [cursor=pointer]
+              - paragraph [ref=e482]: A fully annotated multi-stage Dockerfile with all key instructions explained.
+            - generic [ref=e484]:
+              - paragraph [ref=e485]: Key Points
+              - list [ref=e486]:
+                - listitem [ref=e487]:
+                  - text: –
+                  - generic [ref=e488]:
+                    - code [ref=e489]: FROM
+                    - text: sets the base image — every Dockerfile starts here.
+                - listitem [ref=e490]:
+                  - text: –
+                  - generic [ref=e491]:
+                    - code [ref=e492]: RUN
+                    - text: ","
+                    - code [ref=e493]: COPY
+                    - text: ","
+                    - code [ref=e494]: ADD
+                    - text: each create a new image layer.
+                - listitem [ref=e495]:
+                  - text: –
+                  - generic [ref=e496]:
+                    - strong [ref=e497]: Multi-stage builds
+                    - text: keep production images small by discarding build tooling.
+                - listitem [ref=e498]:
+                  - text: –
+                  - generic [ref=e499]:
+                    - code [ref=e500]: EXPOSE
+                    - text: is documentation only — publish ports with
+                    - code [ref=e501]: "-p"
+                    - text: at runtime.
+                - listitem [ref=e502]:
+                  - text: –
+                  - generic [ref=e503]:
+                    - code [ref=e504]: USER
+                    - text: — always finish with a non-root user; UID 1001 is a common convention.
+                - listitem [ref=e505]:
+                  - text: –
+                  - generic [ref=e506]:
+                    - code [ref=e507]: HEALTHCHECK
+                    - text: — enables Docker/orchestrators to detect and restart unhealthy containers.
+                - listitem [ref=e508]: "– Layer order matters: stable things first, frequently-changing things last."
+          - generic [ref=e510]:
+            - generic [ref=e512]:
+              - heading "Containers vs Virtual Machines" [level=2] [ref=e513]
+              - generic "Concept" [ref=e515]
+            - generic [ref=e516]:
+              - paragraph [ref=e517]: "Virtual Machines have been the foundation of cloud infrastructure for two decades. A hypervisor (such as VMware ESXi, KVM, or Hyper-V) creates virtualised hardware for each VM — virtual CPU, RAM, disk, network card. Each VM then runs a complete guest operating system on top of this virtual hardware. The isolation is strong: a compromised VM cannot directly access another VM's kernel."
+              - paragraph [ref=e518]: Containers take a fundamentally different approach. There is no hypervisor, no virtualised hardware, and no guest operating system. Instead, the host kernel itself provides isolation through namespaces and cgroups. Every container on the same host shares the same kernel — they are just differently constrained views of the same running OS.
+              - paragraph [ref=e519]: This difference has profound practical consequences. A VM must boot an entire OS, which takes 30–90 seconds and consumes hundreds of megabytes of RAM just for the OS baseline. A container starts in milliseconds because there is no OS to boot — it is just another process. You can run hundreds of containers on the same host that could only host a handful of VMs.
+              - paragraph [ref=e520]: The trade-off is isolation depth. If there is a kernel vulnerability, it potentially affects all containers on that host. VMs provide a harder boundary because exploiting one requires breaking through the hypervisor as well. Modern container runtimes (like gVisor, Kata Containers) address this by adding a lightweight VM layer underneath containers when stronger isolation is needed.
+            - status [ref=e523]:
+              - generic [ref=e528]:
+                - generic [ref=e529]: "Containers vs VMs — not either/or:"
+                - generic [ref=e530]: In production cloud environments, containers typically run inside VMs. You get the density and speed of containers AND the isolation boundary of virtualisation. These technologies are complementary.
+            - generic [ref=e532]:
+              - paragraph [ref=e533]: text
+              - generic [ref=e534]:
+                - textbox "Copy to clipboard" [ref=e535]:
+                  - code [ref=e537]: "┌──────────────────────────────────┐ ┌──────────────────────────────────┐ │ Virtual Machines │ │ Containers │ ├──────────────────────────────────┤ ├──────────────────────────────────┤ │ App A │ App B │ App C │ │ App A │ App B │ App C │ ├─────────┼─────────┼───────────────┤ ├───────┼───────┼──────────────────┤ │ Guest │ Guest │ Guest │ │ Libs │ Libs │ Libs │ │ OS │ OS │ OS │ ├───────┴───────┴──────────────────┤ ├─────────┴─────────┴───────────────┤ │ Container Runtime (Docker) │ │ Hypervisor │ ├──────────────────────────────────┤ ├───────────────────────────────────┤ │ Host OS Kernel │ │ Host OS + Hardware │ ├──────────────────────────────────┤ └───────────────────────────────────┘ │ Hardware │ └──────────────────────────────────┘ Start time: 30-90 seconds Start time: < 1 second Size: GB per VM Size: MB per container Density: ~10-50 per host Density: hundreds per host Isolation: strong (hypervisor) Isolation: kernel-level namespaces"
+                - generic [ref=e538]:
+                  - button "Copy to clipboard" [ref=e540] [cursor=pointer]
+                  - tooltip [aria-hidden]
+                - button "Show more" [ref=e544] [cursor=pointer]
+              - paragraph [ref=e548]: "Side-by-side architecture comparison: VMs vs Containers."
+            - generic [ref=e550]:
+              - paragraph [ref=e551]: Key Points
+              - list [ref=e552]:
+                - listitem [ref=e553]:
+                  - text: –
+                  - generic [ref=e554]:
+                    - text: VMs virtualise
+                    - strong [ref=e555]: hardware
+                    - text: . Containers virtualise
+                    - strong [ref=e556]: the OS process space
+                    - text: .
+                - listitem [ref=e557]: – Containers share the host kernel — no guest OS to boot, start in < 1 second.
+                - listitem [ref=e558]: "– VM: 30–90s start, GBs RAM. Container: <1s start, MBs RAM."
+                - listitem [ref=e559]: – VMs offer stronger isolation (hypervisor boundary). Containers are faster and denser.
+                - listitem [ref=e560]:
+                  - text: –
+                  - generic [ref=e561]:
+                    - text: "In practice: containers run"
+                    - emphasis [ref=e562]: inside
+                    - text: VMs in the cloud — you get both benefits.
+          - generic [ref=e564]:
+            - generic [ref=e566]:
+              - heading "Container Immutability" [level=2] [ref=e567]
+              - generic "Best Practice" [ref=e569]
+            - generic [ref=e570]:
+              - paragraph [ref=e571]:
+                - text: One of the most important principles in container operations is
+                - strong [ref=e572]: immutability
+                - text: ": once a container image is built, it should never be modified. If you need to update your application, you rebuild the image from scratch and deploy the new version. You do not patch the running container, you do not"
+                - code [ref=e573]: ssh
+                - text: into it and install packages, you do not edit config files in place.
+              - paragraph [ref=e574]:
+                - text: This is sometimes summarised as
+                - strong [ref=e575]: "\"cattle, not pets\""
+                - text: . In traditional operations, servers were treated like pets — individually named, carefully maintained, nursed through outages. Containers should be treated like cattle — interchangeable, identical units that are replaced rather than repaired. If a container misbehaves, you kill it and start a new one from the same image.
+              - paragraph [ref=e576]: "Immutability has several important practical benefits. Every running container is guaranteed to be identical to every other container started from the same image — no configuration drift, no \"works on my machine\" problems. Rolling back a bad deployment means running the previous image tag, which is instant. Auditing what is in production is trivial: look at the image digest."
+              - paragraph [ref=e577]:
+                - text: Immutability does NOT mean your application cannot have persistent state. It means that state must be
+                - strong [ref=e578]: externalised
+                - text: — stored in a database, object store, or mounted volume that lives outside the container. The container itself is ephemeral. Its filesystem is thrown away when it stops. If your application needs to write data that must survive a container restart, that data must go to a volume or an external service.
+            - generic [ref=e579]:
+              - status [ref=e581]:
+                - generic [ref=e586]:
+                  - generic [ref=e587]: "Do not exec into production:"
+                  - generic [ref=e588]: Running "docker exec -it mycontainer bash" to make changes in a running production container defeats the entire purpose of immutability. If the container is replaced, those changes vanish. Fix it in the Dockerfile and redeploy.
+              - status [ref=e590]:
+                - generic [ref=e595]:
+                  - generic [ref=e596]: "Cattle, not pets:"
+                  - generic [ref=e597]: Name your containers after their role, not their personality. If container "web-1" crashes, spin up "web-2" from the same image — do not try to repair "web-1".
+            - generic [ref=e599]:
+              - paragraph [ref=e600]: bash
+              - generic [ref=e601]:
+                - textbox "Copy to clipboard" [ref=e602]:
+                  - code [ref=e604]: "# WRONG — modifying a running container (changes are lost on restart) docker exec my-app apt-get install -y curl # never do this docker exec my-app vi /etc/config.yaml # never do this # RIGHT — fix it in the Dockerfile, rebuild, redeploy # 1. Edit your Dockerfile to include the change # 2. Rebuild the image with a new tag docker build -t myapp:v2 . # 3. Stop the old container and start the new one docker stop my-app && docker rm my-app docker run -d --name my-app myapp:v2 # RIGHT — rollback by simply running the previous image docker stop my-app && docker rm my-app docker run -d --name my-app myapp:v1"
+                - generic [ref=e605]:
+                  - button "Copy to clipboard" [ref=e607] [cursor=pointer]
+                  - tooltip [aria-hidden]
+              - paragraph [ref=e611]: "The immutable container workflow: rebuild and replace, never patch."
+            - generic [ref=e613]:
+              - paragraph [ref=e614]: Key Points
+              - list [ref=e615]:
+                - listitem [ref=e616]: – Images are read-only. Never modify a running container — rebuild the image instead.
+                - listitem [ref=e617]:
+                  - text: –
+                  - generic [ref=e618]:
+                    - text: "\""
+                    - strong [ref=e619]: Cattle, not pets
+                    - text: "\" — containers are disposable, interchangeable units."
+                - listitem [ref=e620]:
+                  - text: –
+                  - generic [ref=e621]:
+                    - text: Every running container from the same image is
+                    - strong [ref=e622]: identical
+                    - text: — no drift.
+                - listitem [ref=e623]: – Rollback = run the previous image tag. It is instant and reliable.
+                - listitem [ref=e624]:
+                  - text: –
+                  - generic [ref=e625]:
+                    - strong [ref=e626]: Externalise state
+                    - text: ": databases, volumes, object storage. The container filesystem is ephemeral."
+          - generic [ref=e628]:
+            - generic [ref=e630]:
+              - 'heading "Docker Hub & Public Registries: Tread Carefully" [level=2] [ref=e631]'
+              - generic "Security" [ref=e633]
+            - generic [ref=e634]:
+              - paragraph [ref=e635]:
+                - strong [ref=e636]: Docker Hub
+                - text: (hub.docker.com) is the default public registry — the npm of the container world. When you run
+                - code [ref=e637]: docker pull nginx
+                - text: ", Docker contacts Docker Hub and downloads the image. It hosts millions of images contributed by vendors, open-source projects, and individual developers."
+              - paragraph [ref=e638]:
+                - text: Docker Hub has a tiered trust system.
+                - strong [ref=e639]: Official Images
+                - text: (marked with a blue badge) are curated by Docker Inc. and maintained by upstream vendors —
+                - code [ref=e640]: nginx
+                - text: ","
+                - code [ref=e641]: node
+                - text: ","
+                - code [ref=e642]: postgres
+                - text: ","
+                - code [ref=e643]: python
+                - text: are official images. They are regularly scanned for CVEs and follow consistent conventions.
+                - strong [ref=e644]: Verified Publisher
+                - text: images are from companies that have verified their identity with Docker.
+                - strong [ref=e645]: Community images
+                - text: — everything else — carry no guarantee and should be treated with significant caution.
+              - paragraph [ref=e646]:
+                - text: The risk is real. Malicious or abandoned community images can contain cryptocurrency miners, backdoors, or simply years of unpatched vulnerabilities. An image that was perfectly safe when pulled two years ago may be full of critical CVEs today. Running
+                - code [ref=e647]: docker pull someuser/sometool:latest
+                - text: without investigation is equivalent to
+                - code [ref=e648]: curl | bash
+                - text: — you are executing untrusted code with whatever privileges you give the container.
+              - paragraph [ref=e649]:
+                - text: For enterprise use, consider
+                - strong [ref=e650]: IBM Container Registry
+                - text: (icr.io),
+                - strong [ref=e651]: Red Hat Quay
+                - text: (quay.io), or your cloud provider's private registry (AWS ECR, GCP Artifact Registry, Azure ACR). These provide image scanning, role-based access control, and a private namespace for your own images. The Open Liberty image used in this repository (
+                - code [ref=e652]: icr.io/appcafe/open-liberty
+                - text: ) is pulled from IBM Container Registry.
+            - generic [ref=e653]:
+              - status [ref=e655]:
+                - generic [ref=e660]:
+                  - generic [ref=e661]: "Always inspect before you pull:"
+                  - generic [ref=e662]: Check the image source, number of pulls, last updated date, and scan results before using any public image in production. "docker scout cves image:tag" shows known vulnerabilities.
+              - status [ref=e664]:
+                - generic [ref=e669]:
+                  - generic [ref=e670]: "The \"latest\" tag is dangerous:"
+                  - generic [ref=e671]: Using :latest means you might get a completely different image tomorrow. Always pin to a specific version tag (e.g. node:22.9.0-alpine3.20) in production.
+            - generic [ref=e673]:
+              - paragraph [ref=e674]: bash
+              - generic [ref=e675]:
+                - textbox "Copy to clipboard" [ref=e676]:
+                  - code [ref=e678]: "# Pull only official or verified-publisher images docker pull nginx:1.27-alpine # Official image, pinned version docker pull node:22.9.0-alpine3.20 # Official image, specific patch version # Scan an image for known CVEs with Docker Scout docker scout cves nginx:1.27-alpine # Or with Trivy (popular open-source scanner) docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \\ aquasec/trivy:latest image nginx:1.27-alpine # Pull from IBM Container Registry (enterprise grade) docker pull icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi # Pull from Red Hat Quay docker pull quay.io/redhat-appstudio/hacbs-jvm-build-tools:latest # Log in to a private registry before pushing your own images docker login myregistry.example.com"
+                - generic [ref=e679]:
+                  - button "Copy to clipboard" [ref=e681] [cursor=pointer]
+                  - tooltip [aria-hidden]
+                - button "Show more" [ref=e685] [cursor=pointer]
+              - paragraph [ref=e689]: Safe image practices — pinned versions, scanning, enterprise registries.
+            - generic [ref=e691]:
+              - paragraph [ref=e692]: Key Points
+              - list [ref=e693]:
+                - listitem [ref=e694]:
+                  - text: –
+                  - generic [ref=e695]:
+                    - strong [ref=e696]: Official Images
+                    - text: are curated by Docker/vendors.
+                    - strong [ref=e697]: Community images
+                    - text: are untrusted by default.
+                - listitem [ref=e698]:
+                  - text: –
+                  - generic [ref=e699]:
+                    - text: Pin to specific version tags (e.g.
+                    - code [ref=e700]: nginx:1.27-alpine
+                    - text: ), not
+                    - code [ref=e701]: :latest
+                    - text: .
+                - listitem [ref=e702]:
+                  - text: –
+                  - generic [ref=e703]:
+                    - text: Scan images for CVEs with
+                    - strong [ref=e704]: Docker Scout
+                    - text: or
+                    - strong [ref=e705]: Trivy
+                    - text: before production use.
+                - listitem [ref=e706]: – Enterprise registries (IBM ICR, Red Hat Quay, AWS ECR) offer scanning and access control.
+                - listitem [ref=e707]: – An old public image is not a safe public image — CVEs accumulate over time.
+          - generic [ref=e708]:
+            - button "Back to Overview" [ref=e709] [cursor=pointer]
+            - 'button "Next: Part 2" [ref=e712] [cursor=pointer]'

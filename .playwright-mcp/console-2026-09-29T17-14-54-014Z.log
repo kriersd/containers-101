@@ -1,0 +1,7 @@
+[     110ms] [INFO] [webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled, Progress disabled, Overlay enabled. @ webpack://launch-next-chapter-ui/./node_modules/webpack-dev-server/client/modules/logger/index.js?:576
+[     110ms] [LOG] [HMR] Waiting for update signal from WDS... @ webpack://launch-next-chapter-ui/./node_modules/webpack/hot/log.js?:38
+[     111ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack://launch-next-chapter-ui/./node_modules/react-dom/cjs/react-dom.development.js?:29889
+[     134ms] [LOG] Running application "LaunchNextChapter" with appParams:
+ {rootTag: #root} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ webpack://launch-next-chapter-ui/./node_modules/react-native-web/dist/exports/AppRegistry/index.js?:77

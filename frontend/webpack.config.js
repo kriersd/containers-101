@@ -67,6 +67,14 @@ module.exports = (env, argv) => {
           test: /\.(css|scss|sass)$/,
           use: ['style-loader', 'css-loader', 'sass-loader'],
         },
+        {
+          // Images — Webpack 5 built-in asset handling. Emits hashed files to dist/.
+          test: /\.(png|jpe?g|gif|svg|webp)$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: 'images/[name].[contenthash][ext]',
+          },
+        },
       ],
     },
 

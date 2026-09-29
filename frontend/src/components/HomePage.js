@@ -2,6 +2,23 @@ import { Grid, Column, ClickableTile, Tag, UnorderedList, ListItem } from '@carb
 import { part1 } from '../content/part1';
 import { part2 } from '../content/part2';
 import { part3 } from '../content/part3';
+import indexImage from '../images/indeximage.png';
+
+const RESOURCES = [
+  // ── Installation ────────────────────────────────────────────────────────────
+  { group: 'Installation', label: 'Podman Install', url: 'https://podman.io/docs/installation' },
+  { group: 'Installation', label: 'Podman Desktop Install', url: 'https://podman-desktop.io/docs/installation' },
+  { group: 'Installation', label: 'Red Hat Developer — Podman Desktop Install', url: 'https://developers.redhat.com/learning/learn:openshift:install-podman-desktop-and-connect-it-your-developer-sandbox/resource/resources:install-and-initialize-podman-desktop-and-podman' },
+  { group: 'Installation', label: 'Docker Engine Install', url: 'https://docs.docker.com/engine/install/' },
+  { group: 'Installation', label: 'Docker Desktop Windows Install', url: 'https://docs.docker.com/desktop/setup/install/windows-install/' },
+  { group: 'Installation', label: 'Docker — Get Started', url: 'https://www.docker.com/get-started/' },
+  // ── Reference ───────────────────────────────────────────────────────────────
+  { group: 'Reference', label: 'Docker CLI Cheat Sheet', url: 'https://docs.docker.com/get-started/docker_cheatsheet.pdf' },
+  { group: 'Reference', label: 'Docker Hub', url: 'https://hub.docker.com/' },
+  // ── Deep Dives ──────────────────────────────────────────────────────────────
+  { group: 'Deep Dives', label: 'Understand Docker Volumes as a Pro', url: 'https://faun.pub/understand-docker-volumes-as-a-pro-86b85dd8b3e8?gi=d0fb7e16a1ad' },
+  { group: 'Deep Dives', label: 'Shell Access to Docker Containers with docker exec', url: 'https://goteleport.com/blog/shell-access-docker-container-with-ssh-and-docker-exec/' },
+];
 
 const PARTS = [part1, part2, part3];
 
@@ -65,6 +82,19 @@ export default function HomePage({ onNavigate }) {
               containers are, how to build and run them safely, and how to apply best
               practices in real-world deployments.
             </p>
+          </Column>
+
+          {/* Hero illustration */}
+          <Column sm={0} md={0} lg={6} xlg={6} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <img
+              src={indexImage}
+              alt="Developer working with container building blocks and code screens"
+              style={{
+                maxWidth: '320px',
+                width: '100%',
+                opacity: 0.92,
+              }}
+            />
           </Column>
         </Grid>
       </div>
@@ -175,6 +205,63 @@ export default function HomePage({ onNavigate }) {
               </ClickableTile>
             </Column>
           ))}
+        </Grid>
+      </div>
+
+      {/* ── Additional Resources ─────────────────────────────────────── */}
+      <div
+        style={{
+          borderTop: '1px solid var(--cds-border-subtle)',
+          padding: '2rem 0 3rem',
+          background: 'var(--cds-layer)',
+        }}
+      >
+        <Grid>
+          <Column sm={4} md={8} lg={16}>
+            <p
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: 'var(--cds-text-secondary)',
+                marginBottom: '1.5rem',
+              }}
+            >
+              Additional Resources
+            </p>
+            {/* Group resources by their group label */}
+            {[...new Set(RESOURCES.map((r) => r.group))].map((group) => (
+              <div key={group} style={{ marginBottom: '1.5rem' }}>
+                <p style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'var(--cds-text-secondary)',
+                  marginBottom: '0.5rem',
+                  borderBottom: '1px solid var(--cds-border-subtle)',
+                  paddingBottom: '0.25rem',
+                }}>
+                  {group}
+                </p>
+                <UnorderedList>
+                  {RESOURCES.filter((r) => r.group === group).map((r) => (
+                    <ListItem key={r.url} style={{ marginBottom: '0.4rem' }}>
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--cds-link-primary)', fontSize: '0.9375rem' }}
+                      >
+                        {r.label} ↗
+                      </a>
+                    </ListItem>
+                  ))}
+                </UnorderedList>
+              </div>
+            ))}
+          </Column>
         </Grid>
       </div>
     </div>
