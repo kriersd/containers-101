@@ -87,7 +87,22 @@ fi
   || err "GITHUB_REPO must be in 'owner/repo-name' format. Got: '${GITHUB_REPO}'"
 
 REPO_NAME="${GITHUB_REPO##*/}"
-ok "Target repo: ${GITHUB_REPO}  →  local directory: ./${REPO_NAME}"
+
+# Detect if we are already inside the target repository directory
+CURRENT_DIR_NAME="$(basename "$(pwd)")"
+if [[ "${CURRENT_DIR_NAME}" == "${REPO_NAME}" ]]; then
+  TARGET_DIR="$(pwd)"
+  PARENT_DIR="$(cd .. && pwd)"
+  IS_INSIDE_REPO=true
+  info "Detected execution from INSIDE repository root: ${TARGET_DIR}"
+else
+  TARGET_DIR="$(pwd)/${REPO_NAME}"
+  PARENT_DIR="$(pwd)"
+  IS_INSIDE_REPO=false
+  info "Detected execution from PARENT directory: ${PARENT_DIR}"
+fi
+
+ok "Target repo: ${GITHUB_REPO}  →  directory: ${TARGET_DIR}"
 
 # ---------------------------------------------------------------------------
 # STEP 3 — Ensure the user is authenticated to GitHub.
@@ -110,19 +125,18 @@ step 4 "Preserving .env file (if present)"
 
 ENV_WAS_BACKED_UP=false
 
-# Look for .env either inside the target subfolder or in the current directory
-if [[ -f "${REPO_NAME}/.env" ]]; then
-  cp "${REPO_NAME}/.env" "${ENV_BACKUP}" \
+if [[ -f "${TARGET_DIR}/.env" ]]; then
+  cp "${TARGET_DIR}/.env" "${ENV_BACKUP}" \
     || err "Failed to back up .env to '${ENV_BACKUP}'. Check permissions on /tmp."
   ENV_WAS_BACKED_UP=true
-  ok ".env backed up from ./${REPO_NAME}/.env to: ${ENV_BACKUP}"
+  ok ".env backed up from ${TARGET_DIR}/.env to: ${ENV_BACKUP}"
 elif [[ -f ".env" ]]; then
   cp ".env" "${ENV_BACKUP}" \
     || err "Failed to back up .env to '${ENV_BACKUP}'. Check permissions on /tmp."
   ENV_WAS_BACKED_UP=true
-  ok ".env backed up from ./.env to: ${ENV_BACKUP}"
+  ok ".env backed up from $(pwd)/.env to: ${ENV_BACKUP}"
 else
-  info "No .env file found in './${REPO_NAME}' or current directory — nothing to back up"
+  info "No .env file found in '${TARGET_DIR}' or current directory — nothing to back up"
 fi
 
 # ---------------------------------------------------------------------------
@@ -130,17 +144,20 @@ fi
 # ---------------------------------------------------------------------------
 step 5 "Removing existing directory and cloning fresh copy"
 
-if [[ -d "${REPO_NAME}" ]]; then
-  rm -rf "${REPO_NAME}" \
-    || err "Failed to remove directory './${REPO_NAME}'. Check permissions."
-  info "Removed: ./${REPO_NAME}"
+# Move out to parent directory to avoid deleting current working directory or nesting
+cd "${PARENT_DIR}"
+
+if [[ -d "${TARGET_DIR}" ]]; then
+  rm -rf "${TARGET_DIR}" \
+    || err "Failed to remove directory '${TARGET_DIR}'. Check permissions."
+  info "Removed: ${TARGET_DIR}"
 fi
 
-info "Cloning ${GITHUB_REPO}..."
+info "Cloning ${GITHUB_REPO} into ${TARGET_DIR}..."
 gh repo clone "${GITHUB_REPO}" "${REPO_NAME}" \
   || err "Failed to clone '${GITHUB_REPO}'. Verify the repository name and your access permissions."
 
-ok "Repository cloned to: ./${REPO_NAME}"
+ok "Repository cloned to: ${TARGET_DIR}"
 
 # ---------------------------------------------------------------------------
 # STEP 6 — Restore the .env file into the freshly cloned directory.
@@ -149,10 +166,10 @@ step 6 "Restoring .env file"
 
 if [[ "${ENV_WAS_BACKED_UP}" == true ]]; then
   if [[ -f "${ENV_BACKUP}" ]]; then
-    cp "${ENV_BACKUP}" "${REPO_NAME}/.env" \
-      || err "Failed to restore .env from '${ENV_BACKUP}' to './${REPO_NAME}/.env'. Check permissions."
+    cp "${ENV_BACKUP}" "${TARGET_DIR}/.env" \
+      || err "Failed to restore .env from '${ENV_BACKUP}' to '${TARGET_DIR}/.env'. Check permissions."
     rm -f "${ENV_BACKUP}"
-    ok ".env restored to: ./${REPO_NAME}/.env  (backup removed)"
+    ok ".env restored to: ${TARGET_DIR}/.env  (backup removed)"
   else
     # Backup file disappeared between steps — flag clearly rather than silently
     # continuing without the env file, which could cause hard-to-diagnose runtime failures.
@@ -169,6 +186,6 @@ echo ""
 ok "Update complete"
 echo ""
 echo "  Repository : ${GITHUB_REPO}"
-echo "  Location   : $(pwd)/${REPO_NAME}"
+echo "  Location   : ${TARGET_DIR}"
 echo "  .env file  : $(if [[ "${ENV_WAS_BACKED_UP}" == true ]]; then echo "preserved"; else echo "not present (no backup was needed)"; fi)"
 echo ""
