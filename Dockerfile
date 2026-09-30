@@ -59,10 +59,11 @@ FROM icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi AS runtime
 ARG LIBERTY_HTTP_PORT=80
 ARG LIBERTY_HTTPS_PORT=9443
 
-# Bake the port numbers into the image as env vars.
+# Bake the port numbers and keystore defaults into the image as env vars.
 # These become the effective defaults; --env-file at runtime can override them.
 ENV LIBERTY_HTTP_PORT=${LIBERTY_HTTP_PORT} \
-    LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT}
+    LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT} \
+    LIBERTY_KEYSTORE_PASSWORD=changeit
 
 # Install only the features declared in server.xml.
 # Adding server.xml before the app means feature installs are cached separately

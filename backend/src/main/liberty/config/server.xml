@@ -30,13 +30,13 @@
 
   <!--
     HTTP listener.
-    WLP_HTTP_PORT is set at container runtime via env-file.
-    Default 80 matches .env.example so the server starts without an env file during local dev.
+    WLP_HTTP_PORT / HTTP_PORT is set at container runtime via env-file.
+    Liberty automatically resolves ${HTTP_PORT} or ${LIBERTY_HTTP_PORT}.
   -->
   <httpEndpoint id="defaultHttpEndpoint"
                 host="*"
-                httpPort="${env.LIBERTY_HTTP_PORT:80}"
-                httpsPort="${env.LIBERTY_HTTPS_PORT:9443}">
+                httpPort="${LIBERTY_HTTP_PORT}"
+                httpsPort="${LIBERTY_HTTPS_PORT}">
     <tcpOptions soReuseAddr="true"/>
   </httpEndpoint>
 
@@ -50,7 +50,7 @@
   <keyStore id="defaultKeyStore"
             location="${server.config.dir}/resources/security/key.p12"
             type="PKCS12"
-            password="${env.LIBERTY_KEYSTORE_PASSWORD:changeit}"/>
+            password="${LIBERTY_KEYSTORE_PASSWORD}"/>
 
   <!--
     Structured JSON logging to stdout.
