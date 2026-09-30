@@ -30,7 +30,7 @@
 
   <!--
     HTTP listener.
-    WLP_HTTP_PORT is set at container runtime via --env-file.
+    WLP_HTTP_PORT is set at container runtime via env-file.
     Default 80 matches .env.example so the server starts without an env file during local dev.
   -->
   <httpEndpoint id="defaultHttpEndpoint"
