@@ -66,11 +66,19 @@ ok "GitHub CLI found: $(gh --version | head -n1)"
 step 2 "Resolving target repository"
 
 if [[ -z "${GITHUB_REPO}" ]]; then
+  # Check if .env or a subfolder .env exists and has GITHUB_REPO defined
+  if [[ -f .env ]]; then
+    ENV_REPO=$(grep -E '^\s*GITHUB_REPO=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]')
+    [[ -n "${ENV_REPO}" ]] && GITHUB_REPO="${ENV_REPO}"
+  fi
+fi
+
+if [[ -z "${GITHUB_REPO}" ]]; then
   echo ""
   read -rp "  Enter the GitHub repository (owner/repo-name): " GITHUB_REPO
   echo ""
   info "Repository set to: ${GITHUB_REPO}"
-  info "ADVISORY: To avoid this prompt in future runs, open update_repo.sh and set"
+  info "ADVISORY: To avoid this prompt in future runs, set GITHUB_REPO in .env or"
   info "          GITHUB_REPO=\"${GITHUB_REPO}\" in the configuration block at the top."
   echo ""
 fi
@@ -102,13 +110,19 @@ step 4 "Preserving .env file (if present)"
 
 ENV_WAS_BACKED_UP=false
 
+# Look for .env either inside the target subfolder or in the current directory
 if [[ -f "${REPO_NAME}/.env" ]]; then
   cp "${REPO_NAME}/.env" "${ENV_BACKUP}" \
     || err "Failed to back up .env to '${ENV_BACKUP}'. Check permissions on /tmp."
   ENV_WAS_BACKED_UP=true
-  ok ".env backed up to: ${ENV_BACKUP}"
+  ok ".env backed up from ./${REPO_NAME}/.env to: ${ENV_BACKUP}"
+elif [[ -f ".env" ]]; then
+  cp ".env" "${ENV_BACKUP}" \
+    || err "Failed to back up .env to '${ENV_BACKUP}'. Check permissions on /tmp."
+  ENV_WAS_BACKED_UP=true
+  ok ".env backed up from ./.env to: ${ENV_BACKUP}"
 else
-  info "No .env file found in './${REPO_NAME}' — nothing to back up"
+  info "No .env file found in './${REPO_NAME}' or current directory — nothing to back up"
 fi
 
 # ---------------------------------------------------------------------------

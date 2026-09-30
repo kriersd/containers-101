@@ -61,11 +61,19 @@ ok "GitHub CLI found: $(gh --version | head -n1)"
 step 2 "Resolving target repository"
 
 if [[ -z "${GITHUB_REPO}" ]]; then
+  # Check if .env has GITHUB_REPO defined
+  if [[ -f .env ]]; then
+    ENV_REPO=$(grep -E '^\s*GITHUB_REPO=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]')
+    [[ -n "${ENV_REPO}" ]] && GITHUB_REPO="${ENV_REPO}"
+  fi
+fi
+
+if [[ -z "${GITHUB_REPO}" ]]; then
   echo ""
   read -rp "  Enter the GitHub repository (owner/repo-name): " GITHUB_REPO
   echo ""
   info "Repository set to: ${GITHUB_REPO}"
-  info "ADVISORY: To avoid this prompt in future runs, open pull_repo.sh and set"
+  info "ADVISORY: To avoid this prompt in future runs, set GITHUB_REPO in .env or"
   info "          GITHUB_REPO=\"${GITHUB_REPO}\" in the configuration block at the top."
   echo ""
 fi
