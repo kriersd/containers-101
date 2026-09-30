@@ -6,7 +6,7 @@
 # Build args — values are passed from build.sh sourced from .env.
 # Defaults mirror .env.example so the image can be built without --build-arg.
 # ---------------------------------------------------------------------------
-ARG LIBERTY_HTTP_PORT=80
+ARG LIBERTY_HTTP_PORT=9080
 ARG LIBERTY_HTTPS_PORT=9443
 
 # ============================================================================
@@ -56,7 +56,7 @@ RUN npm run build
 FROM icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi AS runtime
 
 # Re-declare ARGs after FROM so they are in scope for this stage.
-ARG LIBERTY_HTTP_PORT=80
+ARG LIBERTY_HTTP_PORT=9080
 ARG LIBERTY_HTTPS_PORT=9443
 
 # Bake the port numbers and keystore defaults into the image as env vars.
@@ -64,6 +64,9 @@ ARG LIBERTY_HTTPS_PORT=9443
 ENV LIBERTY_HTTP_PORT=${LIBERTY_HTTP_PORT} \
     LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT} \
     LIBERTY_KEYSTORE_PASSWORD=changeit
+# NOTE: LIBERTY_HTTP_PORT must match what Liberty binds to in server.xml.
+# The .env.example default is 9080, which is the Liberty conventional HTTP port.
+# Override at build time with --build-arg LIBERTY_HTTP_PORT=<port> if needed.
 
 # Install only the features declared in server.xml.
 # Adding server.xml before the app means feature installs are cached separately
