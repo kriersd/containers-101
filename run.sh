@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# run.sh — Start the launch-next-chapter container with runtime env injection.
+# run.sh — Start the containers101 container with runtime env injection.
 # POSIX-compatible bash.
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration — must match the tag used by build.sh.
 # ---------------------------------------------------------------------------
-IMAGE_TAG="launch-next-chapter:latest"
-CONTAINER_NAME="launch-next-chapter"
+IMAGE_TAG="containers101:latest"
+CONTAINER_NAME="containers101"
 
 # ---------------------------------------------------------------------------
 # Shared runtime detection — prefer Podman, fall back to Docker.

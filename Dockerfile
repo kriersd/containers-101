@@ -77,8 +77,8 @@ RUN features.sh
 # Copy the compiled WAR from stage 1.
 COPY --chown=1001:0 \
      --from=backend-build \
-     /build/backend/target/launch-next-chapter.war \
-     /config/apps/launch-next-chapter.war
+     /build/backend/target/containers101.war \
+     /config/apps/containers101.war
 
 # Copy static frontend assets from stage 2.
 # Liberty's defaultHttpEndpoint will serve these from /static/ via a

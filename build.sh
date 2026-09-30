@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# build.sh — Build the launch-next-chapter container image.
+# build.sh — Build the containers101 container image.
 # POSIX-compatible bash. Re-runnable without manual cleanup.
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration — edit IMAGE_TAG to change the output image name.
 # ---------------------------------------------------------------------------
-IMAGE_TAG="launch-next-chapter:latest"
+IMAGE_TAG="containers101:latest"
 
 # ---------------------------------------------------------------------------
 # Shared runtime detection — prefer Podman, fall back to Docker.

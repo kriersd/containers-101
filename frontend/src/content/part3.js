@@ -411,7 +411,7 @@ RUN mvn dependency:go-offline --no-transfer-progress -q
 
 COPY backend/src ./src
 RUN mvn package --no-transfer-progress -q -DskipTests
-# ↑ Compiles Java → produces launch-next-chapter.war`,
+# ↑ Compiles Java → produces containers101.war`,
           caption: 'Lines 15–29: Stage 1 — Maven compiles the Java backend.',
         },
         {
@@ -458,8 +458,8 @@ RUN features.sh
 # Copy compiled WAR from Stage 1 — ONLY the output, not the JDK or Maven
 COPY --chown=1001:0 \\
      --from=backend-build \\
-     /build/backend/target/launch-next-chapter.war \\
-     /config/apps/launch-next-chapter.war
+     /build/backend/target/containers101.war \\
+     /config/apps/containers101.war
 
 # Copy frontend static assets from Stage 2 — ONLY the dist bundle
 COPY --chown=1001:0 \\
@@ -512,7 +512,7 @@ open http://localhost:4011
 curl http://localhost:4011/health
 
 # 7. View logs
-docker logs -f launch-next-chapter`,
+docker logs -f containers101`,
           caption: 'Build and run the full application from this repository.',
         },
         {

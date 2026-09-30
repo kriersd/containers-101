@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
-  <artifactId>launch-next-chapter</artifactId>
+  <artifactId>containers101</artifactId>
   <version>1.0.0</version>
   <packaging>war</packaging>
 

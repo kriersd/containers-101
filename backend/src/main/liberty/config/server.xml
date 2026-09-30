@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server description="launch-next-chapter production server">
+<server description="containers101 production server">
 
   <!--
     Explicit feature set — no wildcards.
@@ -80,8 +80,8 @@
     The WAR is copied to /config/apps/ by the Dockerfile final stage.
     context-root "/" serves the app at the domain root.
   -->
-  <webApplication id="launch-next-chapter"
-                  location="launch-next-chapter.war"
+  <webApplication id="containers101"
+                  location="containers101.war"
                   context-root="/"/>
 
 </server>
