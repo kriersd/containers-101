@@ -10,26 +10,7 @@ ARG LIBERTY_HTTP_PORT=9080
 ARG LIBERTY_HTTPS_PORT=9443
 
 # ============================================================================
-# STAGE 1 — Maven build of the Liberty backend
-# ============================================================================
-FROM maven:3.9.9-eclipse-temurin-17 AS backend-build
-
-WORKDIR /build/backend
-
-# Copy dependency manifest first so Maven's layer cache is reused on source-only changes.
-COPY backend/pom.xml .
-
-# Download all declared dependencies into the local cache layer.
-# -q suppresses download noise; --no-transfer-progress keeps CI logs clean.
-RUN mvn dependency:go-offline --no-transfer-progress -q
-
-# Copy source tree and compile.
-COPY backend/src ./src
-
-RUN mvn package --no-transfer-progress -q -DskipTests
-
-# ============================================================================
-# STAGE 2 — Node.js build of the React Native Web frontend
+# STAGE 1 — Node.js build of the React Native Web frontend
 # ============================================================================
 FROM node:22.9.0-alpine3.20 AS frontend-build
 
@@ -51,6 +32,30 @@ COPY frontend/src ./src
 RUN npm run build
 
 # ============================================================================
+# STAGE 2 — Maven build of the Liberty backend
+# ============================================================================
+FROM maven:3.9.9-eclipse-temurin-17 AS backend-build
+
+WORKDIR /build/backend
+
+# Copy dependency manifest first so Maven's layer cache is reused on source-only changes.
+COPY backend/pom.xml .
+
+# Download all declared dependencies into the local cache layer.
+# -q suppresses download noise; --no-transfer-progress keeps CI logs clean.
+RUN mvn dependency:go-offline --no-transfer-progress -q
+
+# Copy source tree.
+COPY backend/src ./src
+
+# Copy the frontend build output into the WAR's web content directory so that
+# Liberty's default servlet serves index.html (and all JS/CSS/image assets) from
+# the context root.  This must happen before `mvn package` assembles the WAR.
+COPY --from=frontend-build /build/frontend/dist ./src/main/webapp
+
+RUN mvn package --no-transfer-progress -q -DskipTests
+
+# ============================================================================
 # STAGE 3 — Final runtime image
 # ============================================================================
 FROM icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi AS runtime
@@ -61,12 +66,12 @@ ARG LIBERTY_HTTPS_PORT=9443
 
 # Bake the port numbers and keystore defaults into the image as env vars.
 # These become the effective defaults; --env-file at runtime can override them.
-ENV LIBERTY_HTTP_PORT=${LIBERTY_HTTP_PORT} \
-    LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT} \
-    LIBERTY_KEYSTORE_PASSWORD=changeit
 # NOTE: LIBERTY_HTTP_PORT must match what Liberty binds to in server.xml.
 # The .env.example default is 9080, which is the Liberty conventional HTTP port.
 # Override at build time with --build-arg LIBERTY_HTTP_PORT=<port> if needed.
+ENV LIBERTY_HTTP_PORT=${LIBERTY_HTTP_PORT} \
+    LIBERTY_HTTPS_PORT=${LIBERTY_HTTPS_PORT} \
+    LIBERTY_KEYSTORE_PASSWORD=changeit
 
 # Install only the features declared in server.xml.
 # Adding server.xml before the app means feature installs are cached separately
@@ -78,21 +83,13 @@ COPY --chown=1001:0 backend/src/main/liberty/config/server.xml /config/server.xm
 # pre-installed. To pre-install during build (faster startup):
 RUN features.sh
 
-# Copy the compiled WAR from stage 1.
+# Copy the compiled WAR (which now contains the frontend assets) from stage 2.
+# The frontend dist was merged into src/main/webapp before mvn package ran,
+# so index.html and all JS/CSS/image files are served from context-root "/".
 COPY --chown=1001:0 \
      --from=backend-build \
      /build/backend/target/containers101.war \
      /config/apps/containers101.war
-
-# Copy static frontend assets from stage 2.
-# Liberty's defaultHttpEndpoint will serve these from /static/ via a
-# FileServlet configured in server.xml, or they can be served by a CDN.
-# Placed under /config/apps/static/ so Liberty's application context can
-# serve them under the same origin as the API, avoiding CORS complexity.
-COPY --chown=1001:0 \
-     --from=frontend-build \
-     /build/frontend/dist \
-     /config/apps/static
 
 # Liberty kernel-slim runs as UID 1001 (non-root) by default.
 # Explicitly setting USER ensures scanners and policy engines can verify it.
