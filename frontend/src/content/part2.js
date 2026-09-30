@@ -371,14 +371,16 @@ docker run -d --name service-b -v shared-data:/var/shared:ro consumer-image`,
         {
           language: 'bash',
           code: `# From this repository's .env.example:
-# LIBERTY_HTTP_PORT=9080
+# LIBERTY_HTTP_PORT=80
 # LIBERTY_HTTPS_PORT=9443
+# HOST_HTTP_PORT=4011
+# HOST_HTTPS_PORT=4012
 # APP_ENV=development
-# API_BASE_URL=http://localhost:9080
+# API_BASE_URL=http://localhost:4011
 # JWT_SECRET=replace-with-a-secure-random-string-min-32-chars
 # DB_HOST=localhost
 # DB_PORT=5432
-# DB_NAME=launch_next_chapter
+# DB_NAME=schema1
 # DB_USER=appuser
 # DB_PASSWORD=changeme
 
@@ -391,7 +393,7 @@ nano .env
 docker run -d \\
   --name my-app \\
   --env-file .env \\
-  -p 9080:9080 \\
+  -p 4011:80 \\
   my-app:latest
 
 # The run.sh script in this repo does exactly this:
@@ -459,10 +461,10 @@ echo "!.env.example" >> .dockerignore`,
 docker run -d -p 8080:80 nginx
 # Access at: http://localhost:8080
 
-# Map multiple ports (HTTP and HTTPS)
+# Map multiple ports (HTTP and HTTPS) — Host:Container
 docker run -d \\
-  -p 9080:9080 \\
-  -p 9443:9443 \\
+  -p 4011:80 \\
+  -p 4012:9443 \\
   --env-file .env \\
   --name my-liberty-app \\
   my-app:latest

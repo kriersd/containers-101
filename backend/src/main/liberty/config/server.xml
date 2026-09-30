@@ -31,11 +31,11 @@
   <!--
     HTTP listener.
     WLP_HTTP_PORT is set at container runtime via --env-file.
-    Default 9080 matches .env.example so the server starts without an env file during local dev.
+    Default 80 matches .env.example so the server starts without an env file during local dev.
   -->
   <httpEndpoint id="defaultHttpEndpoint"
                 host="*"
-                httpPort="${env.LIBERTY_HTTP_PORT:9080}"
+                httpPort="${env.LIBERTY_HTTP_PORT:80}"
                 httpsPort="${env.LIBERTY_HTTPS_PORT:9443}">
     <tcpOptions soReuseAddr="true"/>
   </httpEndpoint>

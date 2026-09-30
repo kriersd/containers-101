@@ -40,7 +40,7 @@ ok "Using: $RUNTIME"
 # STEP 2 — Source build-args from .env if present.
 # ---------------------------------------------------------------------------
 step 2 "Loading build arguments from .env"
-LIBERTY_HTTP_PORT=9080
+LIBERTY_HTTP_PORT=80
 LIBERTY_HTTPS_PORT=9443
 
 if [[ -f .env ]]; then

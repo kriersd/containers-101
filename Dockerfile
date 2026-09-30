@@ -6,7 +6,7 @@
 # Build args — values are passed from build.sh sourced from .env.
 # Defaults mirror .env.example so the image can be built without --build-arg.
 # ---------------------------------------------------------------------------
-ARG LIBERTY_HTTP_PORT=9080
+ARG LIBERTY_HTTP_PORT=80
 ARG LIBERTY_HTTPS_PORT=9443
 
 # ============================================================================
@@ -56,7 +56,7 @@ RUN npm run build
 FROM icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi AS runtime
 
 # Re-declare ARGs after FROM so they are in scope for this stage.
-ARG LIBERTY_HTTP_PORT=9080
+ARG LIBERTY_HTTP_PORT=80
 ARG LIBERTY_HTTPS_PORT=9443
 
 # Bake the port numbers into the image as env vars.

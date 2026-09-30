@@ -48,7 +48,7 @@ cp .env.example .env
 ./run.sh
 
 # 5. Open in browser
-open http://localhost:9080
+open http://localhost:4011
 ```
 
 ### Frontend Development (hot reload)

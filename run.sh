@@ -45,8 +45,10 @@ ok ".env found"
 # STEP 3 — Read port mappings from .env.
 # ---------------------------------------------------------------------------
 step 3 "Reading port configuration from .env"
-LIBERTY_HTTP_PORT=9080
+LIBERTY_HTTP_PORT=80
 LIBERTY_HTTPS_PORT=9443
+HOST_HTTP_PORT=4011
+HOST_HTTPS_PORT=4012
 
 while IFS='=' read -r key value; do
   value="${value%%#*}"
@@ -55,10 +57,12 @@ while IFS='=' read -r key value; do
   case "$key" in
     LIBERTY_HTTP_PORT)  LIBERTY_HTTP_PORT="$value"  ;;
     LIBERTY_HTTPS_PORT) LIBERTY_HTTPS_PORT="$value" ;;
+    HOST_HTTP_PORT)     HOST_HTTP_PORT="$value"     ;;
+    HOST_HTTPS_PORT)    HOST_HTTPS_PORT="$value"    ;;
   esac
 done < <(grep -v '^\s*#' .env | grep -v '^\s*$')
 
-ok "HTTP port: $LIBERTY_HTTP_PORT  HTTPS port: $LIBERTY_HTTPS_PORT"
+ok "Host HTTP: $HOST_HTTP_PORT -> Container: $LIBERTY_HTTP_PORT | Host HTTPS: $HOST_HTTPS_PORT -> Container: $LIBERTY_HTTPS_PORT"
 
 # ---------------------------------------------------------------------------
 # STEP 4 — Remove a stale container with the same name if one exists.
@@ -76,16 +80,16 @@ CONTAINER_ID=$("$RUNTIME" run \
   --detach \
   --name "$CONTAINER_NAME" \
   --env-file .env \
-  --publish "${LIBERTY_HTTP_PORT}:${LIBERTY_HTTP_PORT}" \
-  --publish "${LIBERTY_HTTPS_PORT}:${LIBERTY_HTTPS_PORT}" \
+  --publish "${HOST_HTTP_PORT}:${LIBERTY_HTTP_PORT}" \
+  --publish "${HOST_HTTPS_PORT}:${LIBERTY_HTTPS_PORT}" \
   "$IMAGE_TAG") || err "Failed to start container. Check that image '$IMAGE_TAG' exists (run build.sh first)."
 
 ok "Container started"
 echo ""
 echo "  Container ID : ${CONTAINER_ID}"
-echo "  HTTP         : http://localhost:${LIBERTY_HTTP_PORT}"
-echo "  HTTPS        : https://localhost:${LIBERTY_HTTPS_PORT}"
-echo "  Health check : http://localhost:${LIBERTY_HTTP_PORT}/health"
+echo "  HTTP         : http://localhost:${HOST_HTTP_PORT}"
+echo "  HTTPS        : https://localhost:${HOST_HTTPS_PORT}"
+echo "  Health check : http://localhost:${HOST_HTTP_PORT}/health"
 echo ""
 echo "  Logs: $RUNTIME logs -f $CONTAINER_NAME"
 echo "  Stop: $RUNTIME stop $CONTAINER_NAME"

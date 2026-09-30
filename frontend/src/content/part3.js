@@ -391,7 +391,7 @@ rm -rf ~/container-demo`,
 
 # ARG declared BEFORE any FROM makes it available as a build-time parameter.
 # The value can be overridden with --build-arg at build time.
-ARG LIBERTY_HTTP_PORT=9080
+ARG LIBERTY_HTTP_PORT=80
 ARG LIBERTY_HTTPS_PORT=9443`,
           caption: 'Lines 1–10: Syntax directive and build-time ARGs.',
         },
@@ -443,7 +443,7 @@ FROM icr.io/appcafe/open-liberty:kernel-slim-java17-openj9-ubi AS runtime
 # ↑ ubi: Red Hat Universal Base Image — compatible with OpenShift
 
 # Re-declare ARGs after FROM to bring them into this stage's scope
-ARG LIBERTY_HTTP_PORT=9080
+ARG LIBERTY_HTTP_PORT=80
 ARG LIBERTY_HTTPS_PORT=9443
 
 # Bake port numbers into the image as ENV vars (runtime-overridable via --env-file)
@@ -506,10 +506,10 @@ cp .env.example .env
 # This runs docker run with --env-file .env and the configured port mappings
 
 # 5. Open the application
-open http://localhost:9080
+open http://localhost:4011
 
 # 6. Check the health endpoint (MicroProfile Health)
-curl http://localhost:9080/health
+curl http://localhost:4011/health
 
 # 7. View logs
 docker logs -f launch-next-chapter`,
@@ -529,7 +529,7 @@ docker logs -f launch-next-chapter`,
 # FROM Part 2:
 # ✓ .env file for all runtime config (build.sh + run.sh)
 # ✓ .dockerignore excludes secrets and build artefacts
-# ✓ Port mapping (LIBERTY_HTTP_PORT:LIBERTY_HTTP_PORT)
+# ✓ Port mapping (HOST_HTTP_PORT:LIBERTY_HTTP_PORT -> 4011:80)
 # ✓ Non-root USER (UID 1001)
 # ✓ HEALTHCHECK endpoint
 # ✓ ENV for runtime-overridable defaults
