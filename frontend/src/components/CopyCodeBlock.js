@@ -3,17 +3,42 @@ import { CodeSnippet } from '@carbon/react';
 /**
  * CopyCodeBlock
  *
- * Wraps Carbon's multi-line CodeSnippet with a language label above it.
+ * Wraps Carbon's multi-line CodeSnippet with a language/title label above it.
  * Copy-to-clipboard is built into Carbon's CodeSnippet component natively.
  *
  * Props:
  *   code      {string}  — The code / command text to display and copy
  *   language  {string}  — Display label (e.g. "bash", "dockerfile", "yaml")
+ *   title     {string}  — Optional heading/title above the code block
+ *   description {string} — Optional explanatory text above the code snippet
  *   caption   {string}  — Optional caption shown below the block
  */
-export default function CopyCodeBlock({ code, language, caption }) {
+export default function CopyCodeBlock({ code, language, title, description, caption }) {
   return (
-    <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+    <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
+      {title && (
+        <h4
+          style={{
+            fontSize: '1.0625rem',
+            fontWeight: 600,
+            marginBottom: '0.25rem',
+            color: 'var(--cds-text-primary)',
+          }}
+        >
+          {title}
+        </h4>
+      )}
+      {description && (
+        <p
+          style={{
+            fontSize: '0.9375rem',
+            lineHeight: 1.6,
+            color: 'var(--cds-text-secondary)',
+            marginBottom: '0.5rem',
+          }}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
+      )}
       {language && (
         <p
           style={{

@@ -5,6 +5,7 @@
 
 import execIntoContainerImg from '../images/Exec-into-container.png';
 import portMappingImg from '../images/port-mapping.png';
+import mountsImg from '../images/Mounts.png';
 
 export const part2 = {
   id: 2,
@@ -233,17 +234,38 @@ docker build -t myapp . 2>&1 | head -3`,
       id: 'volume-mounts',
       title: 'Volume Mounts: Persisting Data',
       tag: { label: 'Storage', type: 'purple' },
+      image: {
+        src: mountsImg,
+        alt: 'Diagram comparing Docker storage types: Volumes (managed by Docker on host filesystem), Bind Mounts (any file or directory on host), and tmpfs mounts (in host system memory only).',
+        caption: 'Types of mounts in Docker — Volumes stored in a Docker-managed part of the host filesystem (/var/lib/docker/volumes/), Bind mounts anywhere on host, and tmpfs stored in host memory only.',
+        maxWidth: '680px',
+      },
       body: [
         'Container filesystems are ephemeral — when a container is removed, everything written to its filesystem disappears. For most stateless applications this is fine and desirable. But databases, file uploads, log archives, and configuration files that must survive container restarts need to live somewhere that outlasts the container. That is what volumes are for.',
         'Docker provides three types of storage mounts. <strong>Named volumes</strong> are managed by Docker — Docker creates and manages a directory on the host and mounts it into the container. They are the recommended approach for application data because Docker handles lifecycle, permissions, and backups. <strong>Bind mounts</strong> mount a specific host directory or file directly into the container — useful for development (mount your source code so changes are reflected immediately) but trickier in production because they depend on the exact host path. <strong>tmpfs mounts</strong> exist only in memory and are never written to disk — useful for sensitive temporary data like session tokens.',
+        '<h3>A Volume\'s Lifecycle</h3>',
+        'A volume\'s contents exist outside the lifecycle of a given container. When a container is destroyed, the writable layer is destroyed with it. Using a volume ensures that the data is persisted even if the container using it is removed.',
+        'A given volume can be mounted into multiple containers simultaneously. When no running container is using a volume, the volume is still available to Docker and isn\'t removed automatically. You can remove unused volumes using <code>docker volume prune</code>.',
+        '<h3>Mounting a Volume Over Existing Data</h3>',
+        'If you mount a <strong>non-empty volume</strong> into a directory in the container in which files or directories exist, the pre-existing files are obscured by the mount. This is similar to if you were to save files into <code>/mnt</code> on a Linux host, and then mounted a USB drive into <code>/mnt</code>. The contents of <code>/mnt</code> would be obscured by the contents of the USB drive until the USB drive was unmounted.',
+        'With containers, there\'s no straightforward way of removing a mount to reveal the obscured files again. Your best option is to recreate the container without the mount.',
+        'If you mount an <strong>empty volume</strong> into a directory in the container in which files or directories exist, these files or directories are propagated (copied) into the volume by default. Similarly, if you start a container and specify a volume which does not already exist, an empty volume is created for you. This is a good way to pre-populate data that another container needs.',
+        'To prevent Docker from copying a container\'s pre-existing files into an empty volume, use the <code>volume-nocopy</code> option with <code>--mount</code>.',
+        '<h3>Volume Drivers & Remote Storage</h3>',
+        'When storing data on remote hosts or cloud storage (such as NFS, AWS EBS, Azure File, or Ceph), you can use <a href="https://docs.docker.com/engine/storage/volumes/#use-a-volume-driver" target="_blank" rel="noopener noreferrer">Volume Drivers</a>. Volume drivers allow you to abstract the underlying storage system so applications can write to shared or clustered storage transparently across multiple hosts without changing application logic.',
         'The <code>-v</code> shorthand is the classic syntax. The newer <code>--mount</code> flag is more verbose but explicit and less error-prone — it requires you to specify the type, source, and target separately, which prevents common mistakes like accidentally creating a named volume when you meant a bind mount.',
         'Permissions are a common gotcha. If your container runs as a non-root user (as it should), the mounted directory on the host needs to be writable by that user\'s UID. The Open Liberty container in this repository runs as UID 1001 — if you mount a host directory, ensure it is owned by UID 1001 or has world-writable permissions.',
       ],
       callouts: [
         {
           kind: 'info',
-          title: 'Named volumes survive docker rm: ',
-          subtitle: 'docker rm mycontainer does NOT delete named volumes. Use docker volume rm myvolume or docker volume prune to clean them up explicitly.',
+          title: 'Volume Lifecycle: ',
+          subtitle: 'A volume\'s contents exist outside container lifecycles and can be mounted into multiple containers at once. Docker never deletes unused volumes automatically — clean them up with "docker volume prune".',
+        },
+        {
+          kind: 'warning',
+          title: 'Mounting over existing data: ',
+          subtitle: 'Mounting a non-empty volume obscures existing files in the container destination directory. Mounting an empty volume copies existing container files into the volume by default (unless volume-nocopy is set).',
         },
         {
           kind: 'warning',
@@ -290,14 +312,33 @@ docker volume rm my-data           # delete a named volume
 docker volume prune                # remove all unused volumes`,
           caption: 'Three types of Docker volume mounts and their use cases.',
         },
+        {
+          title: 'Advanced Volume Options: volume-nocopy & Multi-Container Sharing',
+          description: 'Control how pre-existing container data interacts with volumes using the explicit <code>--mount</code> flag.',
+          language: 'bash',
+          code: `# ── 1. Prevent copying pre-existing container files into empty volume ───
+docker run -d \\
+  --name my-app \\
+  --mount type=volume,source=my-vol,target=/app/data,volume-nocopy \\
+  my-image:latest
+
+# ── 2. Mount one volume across multiple containers simultaneously ────────
+# Container A (writer)
+docker run -d --name service-a -v shared-data:/var/shared producer-image
+
+# Container B (read-only consumer)
+docker run -d --name service-b -v shared-data:/var/shared:ro consumer-image`,
+          caption: 'Using volume-nocopy and sharing volumes between containers.',
+        },
       ],
       keyPoints: [
-        '<strong>Named volumes</strong>: Docker-managed, recommended for databases and app data.',
-        '<strong>Bind mounts</strong>: Host path direct-mount, great for dev but path-dependent in production.',
-        '<strong>tmpfs</strong>: Memory-only, never written to disk, ideal for sensitive temporary data.',
-        'Named volumes survive <code>docker rm</code> — they must be deleted explicitly.',
+        '<strong>A Volume\'s Lifecycle</strong>: Contents exist outside the container lifecycle and persist after the container is destroyed.',
+        'Volumes can be mounted into <strong>multiple containers simultaneously</strong>.',
+        'Unused volumes are <strong>not removed automatically</strong> — use <code>docker volume prune</code>.',
+        '<strong>Mounting over existing data</strong>: Non-empty volume obscures container files; empty volume copies container files into the volume by default.',
+        'Use <code>volume-nocopy</code> with <code>--mount</code> to prevent copying container files into an empty volume.',
         'Non-root containers need matching UID ownership on the host directory.',
-        '<a href="https://www.geeksforgeeks.org/devops/what-is-docker-volume/" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">More info on docker volumes ↗</a>',
+        '<a href="https://docs.docker.com/engine/storage/volumes/#use-a-volume-driver" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary)">Docker Documentation: Use a Volume Driver & Advanced Mounts ↗</a>',
       ],
     },
 
@@ -524,6 +565,7 @@ docker inspect my-web | grep -A 3 '"RestartPolicy"'`,
         'Privileged mode is occasionally legitimate: running Docker-in-Docker (DinD) for CI pipelines, managing hardware devices from inside a container, or certain system-level tooling. It is almost never appropriate for application containers. Many security audits and compliance frameworks (SOC 2, PCI-DSS) explicitly prohibit privileged containers.',
         'The better approach is <strong>capability addition</strong> with <code>--cap-add</code>. Linux capabilities break root\'s powers into fine-grained units. If your container only needs to bind to a port below 1024, you need <code>NET_BIND_SERVICE</code>, not full root. If it needs to change system time, you need <code>SYS_TIME</code>. Grant only the specific capability required — nothing more.',
         'The most important security setting is also the simplest: <strong>run as a non-root user</strong>. The Dockerfile for this repository switches to UID 1001 before starting the application server. If a vulnerability allows an attacker to escape the container, they escape as UID 1001 — a non-privileged user with no special host permissions. If the container ran as root, the attacker would escape as root on the host.',
+        '<strong>Real-world example:</strong> For a working project demonstrating containerized device access, camera control, and privileged requirements on embedded hardware (Raspberry Pi), see the <a href="https://github.com/kriersd/EyesInTheSkyWithPi" target="_blank" rel="noopener noreferrer" style="color:var(--cds-link-primary);font-weight:600;">EyesInTheSkyWithPi GitHub Repository ↗</a>.',
       ],
       callouts: [
         {

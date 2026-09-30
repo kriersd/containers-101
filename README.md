@@ -80,7 +80,7 @@ containers-101/
 │   │   │   ├── TopicSection.js  # Rich content section component
 │   │   │   └── CopyCodeBlock.js # Code block with copy-to-clipboard
 │   │   └── content/
-│   │       ├── part1.js    # Part 1: Introduction to Containers (8 topics)
+│   │       ├── part1.js    # Part 1: Introduction to Containers (11 topics)
 │   │       ├── part2.js    # Part 2: Building & Running Containers (9 topics)
 │   │       └── part3.js    # Part 3: Hands-On Examples (4 topics)
 │   └── package.json

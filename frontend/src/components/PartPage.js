@@ -199,6 +199,8 @@ export default function PartPage({ partId, onBack, onNavigate }) {
               body={topic.body}
               callouts={topic.callouts}
               codeBlocks={topic.codeBlocks}
+              commandCards={topic.commandCards}
+              comparisonTable={topic.comparisonTable}
               keyPoints={topic.keyPoints}
               image={topic.image}
               secondaryImage={topic.secondaryImage}

@@ -16,6 +16,10 @@ const RESOURCES = [
   { group: 'Reference', label: 'Docker CLI Cheat Sheet', url: 'https://docs.docker.com/get-started/docker_cheatsheet.pdf' },
   { group: 'Reference', label: 'Docker Hub', url: 'https://hub.docker.com/' },
   // ── Deep Dives ──────────────────────────────────────────────────────────────
+  { group: 'Deep Dives', label: 'Docker Volume Drivers & Storage', url: 'https://docs.docker.com/engine/storage/volumes/#use-a-volume-driver' },
+  { group: 'Deep Dives', label: 'Podman Quadlet — Running Containers with systemd', url: 'https://podman-desktop.io/blog/podman-quadlet' },
+  { group: 'Deep Dives', label: 'Docker Compose Overview', url: 'https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/' },
+  { group: 'Deep Dives', label: 'Compose Application Model', url: 'https://docs.docker.com/compose/intro/compose-application-model/' },
   { group: 'Deep Dives', label: 'Understand Docker Volumes as a Pro', url: 'https://faun.pub/understand-docker-volumes-as-a-pro-86b85dd8b3e8?gi=d0fb7e16a1ad' },
   { group: 'Deep Dives', label: 'Shell Access to Docker Containers with docker exec', url: 'https://goteleport.com/blog/shell-access-docker-container-with-ssh-and-docker-exec/' },
   { group: 'Deep Dives', label: 'History of Containers', url: 'https://www.aquasec.com/blog/a-brief-history-of-containers-from-1970s-chroot-to-docker-2016/' },
@@ -28,7 +32,7 @@ const PART_TAG_TYPES = ['teal', 'purple', 'blue'];
 
 // Short descriptions shown on each card
 const PART_DESCRIPTIONS = [
-  'Core concepts, architectures, the layered filesystem, Podman vs Docker, Dockerfile anatomy, and why containers beat VMs.',
+  "Core concepts, architectures, layered filesystem, Podman vs Docker, Dockerfile anatomy, Docker Compose, Dave's personal top commands, and why containers beat VMs.",
   'Running containers in practice — env vars, volumes, port mapping, restart policies, privileged mode, and image tagging.',
   'Live walkthroughs — pull your first container, run Ghost blog, build a Node.js app from scratch, and tour this repo.',
 ];

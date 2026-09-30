@@ -1,6 +1,6 @@
 /**
  * Part 1 — Introduction to Containers
- * 8 topics covering core concepts and technologies.
+ * 11 topics covering core concepts and technologies.
  */
 
 import containerLayersImg from '../images/container-layers.png';
@@ -61,7 +61,66 @@ docker stop my-web && docker rm my-web`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 2 — Architecture & OS Matter
+    // Topic 2 — Image vs Container
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      id: 'image-vs-container',
+      title: 'Image vs Container',
+      tag: { label: 'Concept', type: 'teal' },
+      body: [
+        'The fundamental difference is that a <strong>Docker image</strong> is a static, read-only blueprint, while a <strong>Docker container</strong> is a live, running instance of that blueprint.',
+        'An easy way to understand the relationship is through programming analogies: an image is like a <strong>Class</strong>, and a container is an <strong>Object</strong> instantiated from that class. Alternatively, if an image is a recipe, the container is the cooked meal — you can make as many meals (containers) from the same recipe (image) as you like, and each one is independent.',
+      ],
+      comparisonTable: {
+        headers: ['Feature', 'Docker Image', 'Docker Container'],
+        rows: [
+          ['State',         'Static, read-only, and immutable',                                             'Dynamic, active, and mutable'],
+          ['Composition',   'Stacked read-only filesystem layers',                                          'The read-only layers plus a thin, temporary writable layer on top'],
+          ['Resource Usage','Consumes only disk space when stored',                                         'Consumes RAM and CPU while running'],
+          ['Lifespan',      'Persistent until explicitly deleted',                                          'Ephemeral; can be started, stopped, and destroyed freely'],
+          ['CLI Commands',  '<code>docker build</code>, <code>docker pull</code>, <code>docker images</code>', '<code>docker run</code>, <code>docker ps</code>, <code>docker stop</code>, <code>docker rm</code>'],
+        ],
+      },
+      callouts: [
+        {
+          kind: 'info',
+          title: 'One image, many containers: ',
+          subtitle: 'You can run dozens of containers from a single image simultaneously. Each gets its own isolated writable layer — the shared read-only image layers are never modified.',
+        },
+      ],
+      codeBlocks: [
+        {
+          language: 'bash',
+          code: `# An image is the blueprint — pull it once, run it many times
+docker pull nginx:1.27-alpine
+
+# Each "docker run" creates a new, independent container from the same image
+docker run -d --name web-1 -p 8081:80 nginx:1.27-alpine
+docker run -d --name web-2 -p 8082:80 nginx:1.27-alpine
+docker run -d --name web-3 -p 8083:80 nginx:1.27-alpine
+
+# List running containers (instances)
+docker ps
+
+# List images (blueprints) — only one nginx image on disk despite 3 containers
+docker images nginx
+
+# Stop and remove a container — the image is unaffected
+docker stop web-1 && docker rm web-1`,
+          caption: 'Three independent containers running from one shared image — the blueprint is never modified.',
+        },
+      ],
+      keyPoints: [
+        'An <strong>image</strong> is static and read-only — the blueprint stored on disk.',
+        'A <strong>container</strong> is a running process — a live instance of the image.',
+        'Think of it as: image = Class, container = Object (or image = recipe, container = meal).',
+        'Many containers can run from the same image simultaneously, each fully isolated.',
+        'Deleting a container does not delete the image; deleting an image does not stop running containers.',
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Topic 3 — Architecture & OS Matter
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'architecture-and-os',
@@ -130,7 +189,7 @@ FROM scratch`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 3 — The Layered Filesystem & Union File System
+    // Topic 4 — The Layered Filesystem & Union File System
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'layered-filesystem',
@@ -220,7 +279,7 @@ docker run --rm -it \\
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 4 — Podman vs Docker
+    // Topic 5 — Podman vs Docker
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'podman-vs-docker',
@@ -279,7 +338,7 @@ podman info | grep "version"`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 5 — The Dockerfile Deep Dive
+    // Topic 6 — The Dockerfile Deep Dive
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'dockerfile-deep-dive',
@@ -369,7 +428,7 @@ CMD ["node", "dist/server.js"]`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 6 — Containers vs VMs
+    // Topic 7 — Containers vs VMs
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'containers-vs-vms',
@@ -428,7 +487,7 @@ CMD ["node", "dist/server.js"]`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 7 — Immutability
+    // Topic 8 — Immutability
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'immutability',
@@ -489,7 +548,7 @@ docker run -d --name my-app myapp:v1`,
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Topic 8 — Docker Hub & Public Registries
+    // Topic 9 — Docker Hub & Public Registries
     // ─────────────────────────────────────────────────────────────────────────
     {
       id: 'docker-hub-and-registries',
@@ -544,6 +603,286 @@ docker login myregistry.example.com`,
         'Scan images for CVEs with <strong>Docker Scout</strong> or <strong>Trivy</strong> before production use.',
         'Enterprise registries (IBM ICR, Red Hat Quay, AWS ECR) offer scanning and access control.',
         'An old public image is not a safe public image — CVEs accumulate over time.',
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Topic 10 — Multi-Container Apps with Docker Compose
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      id: 'docker-compose',
+      title: 'Multi-Container Apps with Docker Compose',
+      tag: { label: 'Tool', type: 'cyan' },
+      body: [
+        'Real-world applications rarely run as a single container in isolation. A typical modern web application requires a frontend UI, an API backend, a database (such as PostgreSQL or MySQL), and perhaps a cache (like Redis). Running each of these individually with <code>docker run</code> commands quickly becomes error-prone and tedious: you have to manually configure shared bridge networks, wire up port mappings, pass environment variables, mount volumes, and start the containers in the exact right order.',
+        '<strong>Docker Compose</strong> is a tool for defining and running multi-container Docker applications. With Compose, you define your entire application stack — services, networks, volumes, environment variables, and build configurations — declaratively in a single YAML file (typically named <code>compose.yaml</code> or <code>docker-compose.yml</code>).',
+        'The <a href="https://docs.docker.com/compose/intro/compose-application-model/" target="_blank" rel="noopener noreferrer">Compose application model</a> is built on three core computing concepts: <strong>Services</strong> (computing components that run container images, with replicas, ports, and environment settings), <strong>Networks</strong> (virtual networks that connect services together and allow them to discover each other by service name via built-in DNS), and <strong>Volumes</strong> (persistent storage shared across containers or preserved through service restarts).',
+        'When should you use Docker Compose? It is the de facto standard tool for <strong>local development and testing environments</strong> (spin up your entire microservice dependencies with a single command), <strong>automated CI/CD testing pipelines</strong> (start isolated test environments and tear them down after test suites finish), and <strong>single-host deployments</strong>. Instead of typing lengthy, repetitive <code>docker run</code> commands, you manage the complete application lifecycle with simple commands like <code>docker compose up</code>, <code>docker compose down</code>, and <code>docker compose logs</code>.',
+      ],
+      callouts: [
+        {
+          kind: 'info',
+          title: 'V2 CLI syntax: ',
+          subtitle: 'Modern Docker Compose is integrated into the Docker CLI as "docker compose" (with a space), replacing the legacy standalone Python tool "docker-compose" (with a hyphen).',
+        },
+        {
+          kind: 'info',
+          title: 'Automatic service discovery: ',
+          subtitle: 'Compose creates a dedicated default network for your application. Services can communicate with each other directly using their service name as the hostname (e.g., your backend connects to "db:5432" without needing hardcoded IP addresses).',
+        },
+      ],
+      codeBlocks: [
+        {
+          language: 'yaml',
+          code: `# compose.yaml — A full-stack web application with database and cache
+services:
+  # Frontend web app (React / Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:8080
+
+  # Backend REST API
+  backend:
+    image: my-backend-api:1.0.0
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_USER=appuser
+      - DB_PASSWORD=secretpassword
+      - REDIS_HOST=cache
+    depends_on:
+      - db
+      - cache
+
+  # PostgreSQL Database with persistent volume
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: secretpassword
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  # In-memory Redis Cache
+  cache:
+    image: redis:7-alpine
+
+# Named volumes for persistent storage
+volumes:
+  db-data:`,
+          caption: 'compose.yaml: Declarative specification for services, environment, ports, and persistent volumes.',
+        },
+        {
+          language: 'bash',
+          code: `# Start all services defined in compose.yaml in the background
+docker compose up -d
+
+# View the status of all managed containers in the stack
+docker compose ps
+
+# Follow aggregated logs from all services (or specify a service: docker compose logs -f backend)
+docker compose logs -f
+
+# Execute a command inside a running service container
+docker compose exec db psql -U appuser -d appdb
+
+# Stop and remove all containers, networks, and recreate state cleanly
+docker compose down
+
+# Stop containers AND delete persistent volumes (clean slate)
+docker compose down -v`,
+          caption: 'Essential Docker Compose CLI commands for managing multi-container stacks.',
+        },
+      ],
+      keyPoints: [
+        '<strong>Docker Compose</strong> defines and runs multi-container applications using a single <code>compose.yaml</code> file.',
+        'Compose Application Model: <strong>Services</strong> (containers), <strong>Networks</strong> (internal DNS communication), and <strong>Volumes</strong> (persistent data).',
+        '<strong>When to use</strong>: Local development environments, CI/CD test pipelines, and multi-service development stacks.',
+        'Built-in <strong>service discovery</strong>: containers reach each other by service name (e.g., <code>db:5432</code>) over an isolated virtual network.',
+        'Core workflow: <code>docker compose up -d</code> to start the full stack, <code>docker compose down</code> to tear it down.',
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Topic 11 — Dave's Personal Tips
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      id: 'daves-personal-tips',
+      title: "Dave's Personal Tips",
+      tag: { label: 'Tips & Tricks', type: 'magenta' },
+      body: [
+        'After working with containers day in and day out, you quickly develop a core rotation of commands that you reach for 95% of the time. While Docker and Podman have extensive command suites, mastering these essential top commands gives you total control over building, running, inspecting, debugging, and cleaning up your container environments.',
+        'Here is the visual card deck of my top daily commands with quick practical tips for each.',
+        '<h3>Running Containers as System Services (Podman Quadlets)</h3>',
+        'I use Podman for the most part, and for important persistent applications (databases, continuous backend services, web proxies), I run them directly as system processes managed by Linux <strong>systemd</strong> using <a href="https://podman-desktop.io/blog/podman-quadlet" target="_blank" rel="noopener noreferrer">Podman Quadlets</a>.',
+        '<strong>What is this INI file?</strong> Quadlet files use standard systemd INI syntax with a <code>.container</code> extension (instead of writing complex 50-line shell scripts or standard unit files). When placed in <code>~/.config/containers/systemd/</code> (for rootless users) or <code>/etc/containers/systemd/</code> (system-wide), the Podman Quadlet systemd generator automatically reads this INI file on <code>systemctl daemon-reload</code> and converts it into a full, production-ready systemd service unit. This gives you automatic startup on host boot, auto-restarts on failure, dependency ordering (e.g. waiting for the network), and unified management via <code>systemctl</code> and <code>journalctl</code> — completely rootless!',
+      ],
+      commandCards: [
+        {
+          command: 'docker build',
+          badge: 'Build',
+          badgeType: 'blue',
+          description: 'Builds an image from a Dockerfile and context path.',
+          tip: 'Always tag with <code>-t name:tag</code> and don\'t forget the trailing context dot (<code>.</code>).',
+        },
+        {
+          command: 'docker run',
+          badge: 'Create & Start',
+          badgeType: 'teal',
+          description: 'Creates a brand new container instance and starts it immediately.',
+          tip: 'Use <code>-d</code> for background, <code>-p 8080:80</code> for ports, and <code>--name</code> for clean naming.',
+        },
+        {
+          command: 'docker start',
+          badge: 'Lifecycle',
+          badgeType: 'green',
+          description: 'Resumes execution of one or more existing stopped containers.',
+          tip: 'Does <em>not</em> create a new container — resumes where the stopped container left off.',
+        },
+        {
+          command: 'docker stop',
+          badge: 'Lifecycle',
+          badgeType: 'warm-gray',
+          description: 'Gracefully stops running containers.',
+          tip: 'Sends <code>SIGTERM</code> first to allow safe exit before sending <code>SIGKILL</code> after 10s.',
+        },
+        {
+          command: 'docker ps -a',
+          badge: 'Inspect',
+          badgeType: 'purple',
+          description: 'Lists all containers on the host, including stopped and crashed ones.',
+          tip: 'Without <code>-a</code>, you only see running containers and will miss crashed or exited ones.',
+        },
+        {
+          command: 'docker logs',
+          badge: 'Debug',
+          badgeType: 'red',
+          description: 'Fetches stdout and stderr streams from a container.',
+          tip: 'Use <code>docker logs -f --tail 100 &lt;name&gt;</code> to stream live output and debug crashes.',
+        },
+        {
+          command: 'docker inspect',
+          badge: 'Debug',
+          badgeType: 'purple',
+          description: 'Returns low-level JSON details for containers, images, volumes, or networks.',
+          tip: 'Pipe to <code>grep "IPAddress"</code> or use <code>--format</code> to extract runtime metadata.',
+        },
+        {
+          command: 'docker images',
+          badge: 'Storage',
+          badgeType: 'cyan',
+          description: 'Lists all local images stored on disk with repository, tag, and size.',
+          tip: 'Useful for spotting untagged images (<code>&lt;none&gt;</code>) taking up disk space.',
+        },
+        {
+          command: 'docker rm',
+          badge: 'Cleanup',
+          badgeType: 'magenta',
+          description: 'Removes one or more stopped containers from disk.',
+          tip: 'Pass <code>-f</code> to force-remove running containers or <code>--volumes</code> for associated data.',
+        },
+        {
+          command: 'docker rmi',
+          badge: 'Cleanup',
+          badgeType: 'magenta',
+          description: 'Removes one or more local container images.',
+          tip: 'Must delete any container referencing the image first before Docker allows image deletion.',
+        },
+        {
+          command: 'docker prune',
+          badge: 'Maintenance',
+          badgeType: 'high-contrast',
+          description: 'One-shot cleanup of all stopped containers, unused networks, and dangling images.',
+          tip: 'Run <code>docker system prune -a --volumes</code> to reclaim maximum disk space.',
+        },
+      ],
+      callouts: [
+        {
+          kind: 'info',
+          title: 'Podman aliases: ',
+          subtitle: 'Every single one of these commands maps directly to "podman" with the exact same flags and arguments.',
+        },
+        {
+          kind: 'info',
+          title: 'Podman Quadlets & systemd: ',
+          subtitle: 'I use Podman for the most part, and for important apps I run them directly as system processes with Podman Quadlets! Files in ~/.config/containers/systemd/ are automatically converted to native systemd service units.',
+        },
+        {
+          kind: 'warning',
+          title: 'Run vs Start: ',
+          subtitle: '"docker run" creates a brand new container every time it is called. "docker start" resumes a container that was previously stopped. If you keep calling "docker run", you will create dozens of duplicate containers.',
+        },
+      ],
+      codeBlocks: [
+        {
+          title: 'Podman Quadlet INI Unit File (my-web.container)',
+          description: 'This INI file defines your container specification declaratively. Systemd translates the <code>[Container]</code> directives directly into rootless podman executions under the hood.',
+          language: 'ini',
+          code: `# File: ~/.config/containers/systemd/my-web.container
+# Systemd INI format parsed by the Podman Quadlet generator
+
+[Unit]
+Description=My Production Web Application
+After=network-online.target
+
+[Container]
+# The container image to pull and run
+Image=docker.io/library/nginx:1.27-alpine
+
+# Expose port 8080 on the host mapped to port 80 inside the container
+PublishPort=8080:80
+
+# Attach a persistent volume for static web content
+Volume=web-data.volume:/usr/share/nginx/html:ro
+
+# Auto-restart policy if the container process crashes
+Restart=always
+
+[Install]
+# Enable this service to start automatically when the user session / host starts
+WantedBy=default.target`,
+          caption: 'my-web.container: INI-formatted Quadlet file that systemd automatically converts into a service unit.',
+        },
+        {
+          title: 'Managing Quadlet Services with Standard systemctl & journalctl',
+          description: 'Once the INI file is in place, you manage the container exactly like any native Linux system service.',
+          language: 'bash',
+          code: `# ── 1. Create the rootless systemd Quadlet directory ──────────────────────
+mkdir -p ~/.config/containers/systemd/
+
+# ── 2. Copy the .container INI file into place ───────────────────────────
+cp my-web.container ~/.config/containers/systemd/
+
+# ── 3. Tell systemd to re-read definitions (runs the Quadlet generator) ──
+systemctl --user daemon-reload
+
+# ── 4. Start the container service and enable it to run on host boot ─────
+systemctl --user start my-web.service
+systemctl --user enable my-web.service
+
+# ── 5. Check service health, process status, and live logs ───────────────
+systemctl --user status my-web.service
+journalctl --user -u my-web.service -f`,
+          caption: 'Controlling your Quadlet container using native systemd commands.',
+        },
+      ],
+      keyPoints: [
+        '<code>docker build</code> & <code>docker run</code>: The core loop for creating blueprints and starting instances.',
+        '<code>docker run</code> (new container) vs <code>docker start</code> (resume existing container).',
+        '<code>docker ps -a</code>: Your radar — always use <code>-a</code> to see exited containers.',
+        '<code>docker logs -f --tail 100</code>: The first place to look whenever something fails.',
+        '<code>docker inspect</code>: Unlocks deep runtime details like IP addresses, mounts, and environment variables.',
+        '<code>docker system prune</code>: Frees up gigabytes of reclaimed disk space when developing locally.',
+        '<strong>Podman Quadlets</strong>: Run important apps declaratively as rootless <code>systemd</code> system services with auto-restart on boot.',
       ],
     },
   ],
