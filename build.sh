@@ -6,7 +6,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Configuration — edit IMAGE_TAG to change the output image name.
 # ---------------------------------------------------------------------------
-IMAGE_TAG="containers101:latest"
+IMAGE_TAG="localhost/containers101:latest"
 
 # ---------------------------------------------------------------------------
 # Shared runtime detection — prefer Podman, fall back to Docker.
